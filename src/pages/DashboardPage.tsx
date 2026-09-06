@@ -1,7 +1,9 @@
-import { Camera, TriangleAlert, Users } from 'lucide-react'
+import { Camera, Percent, TriangleAlert, Users } from 'lucide-react'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { LocationCard } from '@/components/dashboard/LocationCard'
 import { RecentAnalyses } from '@/components/dashboard/RecentAnalyses'
+import { ActiveToolboxCard } from '@/components/dashboard/ActiveToolboxCard'
+import { PendingReviewsCard } from '@/components/dashboard/PendingReviewsCard'
 import { dashboardStats } from '@/data/mock'
 
 export function DashboardPage() {
@@ -19,34 +21,44 @@ export function DashboardPage() {
         <p className="text-sm font-medium text-gray-600">Sept. 06, 2026</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={<Users className="h-5 w-5 text-brand-dark" />}
-          badge={`${dashboardStats.currentWorkers} current workers`}
+          badge={`${dashboardStats.currentWorkers} on site`}
           badgeTone="green"
           label="Total Workers"
-          value={`${dashboardStats.totalWorkers} workers`}
+          value={`${dashboardStats.totalWorkers}`}
+        />
+        <StatCard
+          icon={<Percent className="h-5 w-5 text-brand-dark" />}
+          badge={`${dashboardStats.workersCheckedToday} checked today`}
+          badgeTone="green"
+          label="Compliance Rate"
+          value={`${dashboardStats.complianceRate}%`}
         />
         <StatCard
           icon={<Camera className="h-5 w-5 text-gray-600" />}
-          badge={`${dashboardStats.snapshotsToday} snapshots today`}
+          badge={`${dashboardStats.snapshotsToday} today`}
           badgeTone="gray"
           label="Total Snapshots"
-          value={`${dashboardStats.totalSnapshots} snapshots`}
+          value={`${dashboardStats.totalSnapshots}`}
         />
         <StatCard
           dark
           icon={<TriangleAlert className="h-5 w-5 text-alert" />}
-          badge={`${dashboardStats.violationsToday} violations today`}
+          badge={`${dashboardStats.pendingReviews} pending review`}
           badgeTone="pink"
           label="Total Violations"
-          value={`${dashboardStats.totalViolations} violations`}
+          value={`${dashboardStats.totalViolations}`}
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <LocationCard />
+      <LocationCard />
+
+      <div className="grid gap-4 lg:grid-cols-3 lg:items-stretch">
         <RecentAnalyses />
+        <ActiveToolboxCard />
+        <PendingReviewsCard />
       </div>
     </div>
   )

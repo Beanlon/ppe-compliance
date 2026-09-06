@@ -8,6 +8,7 @@ interface StatCardProps {
   label: string
   value: string
   dark?: boolean
+  className?: string
 }
 
 export function StatCard({
@@ -17,12 +18,13 @@ export function StatCard({
   label,
   value,
   dark = false,
+  className = '',
 }: StatCardProps) {
   return (
     <article
       className={`rounded-2xl p-5 shadow-sm ${
         dark ? 'bg-[#14161f] text-white' : 'bg-white text-gray-900'
-      }`}
+      } ${className}`}
     >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div

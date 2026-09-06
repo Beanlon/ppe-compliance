@@ -1,11 +1,11 @@
 # PPE Guard
 
-AI-Assisted PPE Compliance System — **frontend only** (TypeScript + React + Tailwind + Node/Vite). Detection uses **mock data**; no YOLOv8 model is wired yet.
+AI-Assisted PPE Compliance System — **frontend only** (TypeScript + React + Tailwind + Vite). Mock UI matching the Site Dashboard and Records designs.
 
 ## Stack
 
 - React 19 + TypeScript
-- Vite (Node.js tooling)
+- Vite
 - Tailwind CSS v4
 - React Router
 - Lucide icons
@@ -17,34 +17,12 @@ npm install
 npm run dev
 ```
 
-## Folder layout
-
-```
-src/
-  components/     # reusable UI, layout, feature widgets
-    layout/
-    ui/
-    dashboard/
-    records/
-  pages/          # route-level screens
-  data/           # mock datasets
-  types/          # shared TypeScript types
-  context/        # auth (mock login)
-```
-
-## Workflow coverage (UI)
+## Pages
 
 | Flow | Route |
 | --- | --- |
-| Login (Safety Officer / Site Engineer) | `/login` |
+| Login | `/login` |
 | Site Dashboard | `/` |
-| Records (snapshots) | `/records` |
-| Register / worker database | `/workers` |
-| Worker compliance history | `/workers/:id` |
-| Create toolbox (attendance + required PPE) | `/toolbox/create` |
-| Work sessions | `/work-sessions` |
-| Session detail (mock AI results) | `/work-sessions/:id` |
-| Review violations | `/violations` |
-| Review evidence | `/evidence` |
-| Reports | `/reports` |
+| Records | `/records` |
+| Create Toolbox | `/toolbox/create` |
 | Settings | `/settings` |

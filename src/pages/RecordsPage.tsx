@@ -33,8 +33,8 @@ export function RecordsPage() {
         <SearchInput
           value={query}
           onChange={setQuery}
-          placeholder="Search snapshots…"
-          className="w-full max-w-sm"
+          placeholder="Search for records, workers, snapshots etc."
+          className="w-full max-w-md"
         />
         <button
           type="button"

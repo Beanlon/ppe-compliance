@@ -31,7 +31,7 @@ export function ToolboxCreatePage() {
 
   function onSubmit(e: FormEvent) {
     e.preventDefault()
-    navigate('/work-sessions')
+    navigate('/')
   }
 
   return (

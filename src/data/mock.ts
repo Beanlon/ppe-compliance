@@ -29,7 +29,34 @@ export const dashboardStats = {
   snapshotsToday: 5,
   totalViolations: 20,
   violationsToday: 0,
+  complianceRate: 87.5,
+  workersCheckedToday: 48,
+  pendingReviews: 2,
+  manualChecksToday: 3,
 }
+
+export const ppeViolationBreakdown = [
+  { item: 'Hard Hat', count: 12 },
+  { item: 'Safety Vest', count: 7 },
+  { item: 'Gloves', count: 15 },
+  { item: 'Safety Boots', count: 5 },
+]
+
+export const complianceTrend = [
+  { day: 'Mon', percent: 82 },
+  { day: 'Tue', percent: 85 },
+  { day: 'Wed', percent: 79 },
+  { day: 'Thu', percent: 88 },
+  { day: 'Fri', percent: 90 },
+  { day: 'Sat', percent: 86 },
+  { day: 'Sun', percent: 87.5 },
+]
+
+export const siteHotspots = [
+  { zone: 'Zone A — Scaffolding', violations: 8 },
+  { zone: 'Zone B — Ground works', violations: 5 },
+  { zone: 'Zone C — Loading bay', violations: 3 },
+]
 
 export const workers: Worker[] = [
   {
@@ -133,7 +160,7 @@ export const snapshots: SnapshotRecord[] = Array.from({ length: 10 }, (_, i) => 
   const violationCount = [0, 12, 0, 12, 0, 12, 0, 12, 0, 12][i]
   return {
     id: `snap-${i + 1}`,
-    snapshotId: `IDNO.-01251251${i}`,
+    snapshotId: 'IDNO.-012512512',
     previewUrl: previewPlaceholders[i % previewPlaceholders.length],
     date: '01/12/2026',
     time: '09:00 PM',
@@ -147,25 +174,25 @@ export const snapshots: SnapshotRecord[] = Array.from({ length: 10 }, (_, i) => 
 export const recentAnalyses: AnalysisItem[] = [
   {
     id: 'a-1',
-    timestamp: 'September 06, 2026 | 09:00 AM',
+    timestamp: 'September 06, 2026 09:00 AM',
     status: 'flagged',
     flaggedCount: 2,
   },
   {
     id: 'a-2',
-    timestamp: 'September 06, 2026 | 09:00 AM',
+    timestamp: 'September 06, 2026 09:00 AM',
     status: 'clear',
     flaggedCount: 0,
   },
   {
     id: 'a-3',
-    timestamp: 'September 06, 2026 | 09:00 AM',
+    timestamp: 'September 06, 2026 09:00 AM',
     status: 'flagged',
     flaggedCount: 2,
   },
   {
     id: 'a-4',
-    timestamp: 'September 06, 2026 | 09:00 AM',
+    timestamp: 'September 06, 2026 09:00 AM',
     status: 'clear',
     flaggedCount: 0,
   },

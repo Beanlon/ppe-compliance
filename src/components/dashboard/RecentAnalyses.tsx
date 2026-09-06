@@ -4,7 +4,7 @@ import { recentAnalyses } from '@/data/mock'
 
 export function RecentAnalyses() {
   return (
-    <article className="rounded-2xl bg-white p-5 shadow-sm">
+    <article className="flex h-full flex-col rounded-2xl bg-white p-5 shadow-sm">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">Recent Analyses</h2>
         <Link
