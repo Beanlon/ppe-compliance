@@ -44,7 +44,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <>
       {/* Desktop: always visible, width scales down with the viewport */}
       <aside className="@container/nav sticky top-0 hidden h-screen w-[clamp(13.5rem,16vw,17.5rem)] shrink-0 flex-col overflow-y-auto bg-sidebar px-[clamp(0.75rem,1.2vw,1.25rem)] py-[clamp(1rem,1.5vw,1.5rem)] text-white lg:flex">
-        <div className="mb-[clamp(1.25rem,2vw,2rem)]">
+        <div className="mb-[clamp(1rem,1.6vw,1.5rem)] border-b border-white/25 pb-[clamp(1rem,1.6vw,1.5rem)]">
           <GearSightLogo
             variant="onDark"
             className="w-full min-w-0 [&>span]:text-[clamp(1.15rem,1.6vw,1.85rem)] [&>svg]:h-[clamp(1.75rem,2.4vw,2.75rem)]"
@@ -70,7 +70,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             open ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
-          <div className="mb-8 flex items-start justify-between gap-3">
+          <div className="mb-6 flex items-start justify-between gap-3 border-b border-white/25 pb-5">
             <GearSightLogo
               variant="onDark"
               className="min-w-0 [&>span]:text-[1.5rem] [&>svg]:h-9"
@@ -100,7 +100,7 @@ function SidebarNav() {
 
   return (
     <>
-      <nav className="flex flex-1 flex-col gap-[clamp(1rem,1.8vw,1.5rem)]">
+      <nav className="flex flex-1 flex-col gap-[clamp(1.25rem,2vw,1.75rem)]">
         <Section
           title="HOME"
           open={homeOpen}
@@ -128,7 +128,7 @@ function SidebarNav() {
         >
           <button
             type="button"
-            className="mt-1 w-full rounded-full bg-[#FF6A1A] px-3 py-[clamp(0.65rem,1.1vw,0.875rem)] text-[clamp(9px,0.85vw,11px)] font-bold uppercase tracking-[0.08em] text-white"
+            className="mt-2 w-full rounded-full bg-[#E8C4A8] px-3 py-[clamp(0.7rem,1.1vw,0.9rem)] text-[clamp(10px,0.9vw,12px)] font-bold uppercase tracking-[0.1em] text-[#C45A1A] transition hover:bg-[#f0d0b8]"
           >
             Show Tutorial
           </button>
@@ -166,14 +166,14 @@ function Section({
       <button
         type="button"
         onClick={onToggle}
-        className="mb-2 flex w-full items-center justify-between px-1 text-[clamp(9px,0.85vw,11px)] font-medium uppercase tracking-[0.16em] text-white/40"
+        className="mb-3 flex w-full items-center justify-between border-b border-white/30 pb-2 text-[clamp(11px,0.95vw,13px)] font-semibold uppercase tracking-[0.12em] text-white"
       >
         {title}
         <ChevronDown
-          className={`h-3.5 w-3.5 transition ${open ? '' : '-rotate-90'}`}
+          className={`h-4 w-4 shrink-0 text-white transition ${open ? '' : '-rotate-90'}`}
         />
       </button>
-      {open ? <div className="flex flex-col gap-1">{children}</div> : null}
+      {open ? <div className="flex flex-col gap-0.5">{children}</div> : null}
     </div>
   )
 }
@@ -194,12 +194,12 @@ function SideLink({
       to={to}
       end={end}
       className={({ isActive }) =>
-        `flex items-center gap-2 rounded-lg px-2 py-2 text-[clamp(0.75rem,1.05vw,0.875rem)] font-medium transition @[14rem]/nav:gap-3 @[14rem]/nav:px-2.5 @[14rem]/nav:py-2.5 ${
-          isActive ? 'text-white' : 'text-white/50 hover:text-white/85'
+        `flex items-center gap-3 rounded-lg px-1 py-2.5 text-[clamp(0.875rem,1.1vw,1rem)] font-medium transition @[14rem]/nav:px-1.5 ${
+          isActive ? 'text-white' : 'text-white/90 hover:text-white'
         }`
       }
     >
-      <Icon className="h-[1.1em] w-[1.1em] shrink-0" strokeWidth={2} />
+      <Icon className="h-[1.15em] w-[1.15em] shrink-0" strokeWidth={2} />
       <span className="truncate">{label}</span>
     </NavLink>
   )
