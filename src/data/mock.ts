@@ -1,12 +1,4 @@
-import type {
-  AnalysisItem,
-  SnapshotRecord,
-  ToolboxSession,
-  User,
-  Violation,
-  WorkSession,
-  Worker,
-} from '@/types'
+import type { SnapshotRecord, User } from '@/types'
 
 export const currentUser: User = {
   id: 'u-1',
@@ -17,226 +9,65 @@ export const currentUser: User = {
 
 export const siteInfo = {
   name: 'A.M. Mata Compound',
-  address: 'A.M. Mata Compound, Maligaya Avenue, Matina, Davao City',
-  mapImage:
-    'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1200&q=80',
+  address: 'A.M. Mata Compound Maligaya Avenue Matina Davao City',
+  currentDate: 'December 02, 2026',
+  currentTime: '09:00 AM',
+  requiredPpe: ['Safety Vest', 'Safety Shoes', 'Harness', 'Helmet'],
+  liveFeedUrl:
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1400&q=80',
+  cameraLabel: 'Iriun Webcam',
 }
 
-export const dashboardStats = {
-  totalWorkers: 80,
-  currentWorkers: 20,
-  totalSnapshots: 20,
-  snapshotsToday: 5,
-  totalViolations: 20,
-  violationsToday: 0,
-  complianceRate: 87.5,
-  workersCheckedToday: 48,
-  pendingReviews: 2,
-  manualChecksToday: 3,
+export const complianceBenchmark = {
+  highCompliance: 90,
+  modelAccuracy: 85,
+  ppeDetection: 84,
+  compliant: 20,
+  nonCompliant: 12,
+  needsChecking: 20,
 }
 
-export const ppeViolationBreakdown = [
-  { item: 'Hard Hat', count: 12 },
-  { item: 'Safety Vest', count: 7 },
-  { item: 'Gloves', count: 15 },
-  { item: 'Safety Boots', count: 5 },
+const previewUrl =
+  'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=70'
+
+const snapshotPreviews = [
+  'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=640&q=70',
+  'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=640&q=70',
+  'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=640&q=70',
+  'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=640&q=70',
+  'https://images.unsplash.com/photo-1590496793929-36417d95d294?auto=format&fit=crop&w=640&q=70',
+  'https://images.unsplash.com/photo-1589939705385-9782769c294b?auto=format&fit=crop&w=640&q=70',
+  'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=640&q=70',
+  'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=640&q=70',
 ]
 
-export const complianceTrend = [
-  { day: 'Mon', percent: 82 },
-  { day: 'Tue', percent: 85 },
-  { day: 'Wed', percent: 79 },
-  { day: 'Thu', percent: 88 },
-  { day: 'Fri', percent: 90 },
-  { day: 'Sat', percent: 86 },
-  { day: 'Sun', percent: 87.5 },
-]
+export const recentSnapshots = Array.from({ length: 12 }, (_, i) => ({
+  id: `recent-${i + 1}`,
+  snapshotId: `SSID-1213-${4152 + i}`,
+  previewUrl: snapshotPreviews[i % snapshotPreviews.length],
+  date: i % 2 === 0 ? 'December 12, 2026' : 'December 11, 2026',
+  time: i % 3 === 0 ? '09:00 AM' : i % 3 === 1 ? '11:30 AM' : '02:15 PM',
+  violationCount: i % 3 === 0 ? 12 : i % 5 === 0 ? 3 : 0,
+}))
 
-export const siteHotspots = [
-  { zone: 'Zone A — Scaffolding', violations: 8 },
-  { zone: 'Zone B — Ground works', violations: 5 },
-  { zone: 'Zone C — Loading bay', violations: 3 },
-]
-
-export const workers: Worker[] = [
-  {
-    id: 'w-1',
-    name: 'Juan Dela Cruz',
-    employeeId: 'EMP-001',
-    trade: 'Carpenter',
-    phone: '0917-111-0001',
-    status: 'active',
-    violationCount: 2,
-  },
-  {
-    id: 'w-2',
-    name: 'Maria Santos',
-    employeeId: 'EMP-002',
-    trade: 'Electrician',
-    phone: '0917-111-0002',
-    status: 'active',
-    violationCount: 0,
-  },
-  {
-    id: 'w-3',
-    name: 'Pedro Reyes',
-    employeeId: 'EMP-003',
-    trade: 'Welder',
-    phone: '0917-111-0003',
-    status: 'active',
-    violationCount: 4,
-  },
-  {
-    id: 'w-4',
-    name: 'Ana Lim',
-    employeeId: 'EMP-004',
-    trade: 'Mason',
-    phone: '0917-111-0004',
-    status: 'active',
-    violationCount: 1,
-  },
-  {
-    id: 'w-5',
-    name: 'Carlo Mendoza',
-    employeeId: 'EMP-005',
-    trade: 'Laborer',
-    phone: '0917-111-0005',
-    status: 'inactive',
-    violationCount: 0,
-  },
-]
-
-export const toolboxSessions: ToolboxSession[] = [
-  {
-    id: 'tb-1',
-    title: 'Morning Safety Briefing — Zone A',
-    date: '09/06/2026',
-    time: '07:30 AM',
-    location: siteInfo.address,
-    requiredPpe: ['Hard Hat', 'Safety Vest', 'Gloves', 'Safety Boots'],
-    attendeeIds: ['w-1', 'w-2', 'w-3', 'w-4'],
-    status: 'completed',
-  },
-  {
-    id: 'tb-2',
-    title: 'Afternoon Toolbox — Roofing Crew',
-    date: '09/06/2026',
-    time: '01:00 PM',
-    location: siteInfo.address,
-    requiredPpe: ['Hard Hat', 'Safety Vest', 'Safety Boots'],
-    attendeeIds: ['w-1', 'w-3', 'w-5'],
-    status: 'active',
-  },
-]
-
-export const workSessions: WorkSession[] = [
-  {
-    id: 'ws-1',
-    toolboxId: 'tb-1',
-    startedAt: '09/06/2026 08:00 AM',
-    endedAt: '09/06/2026 12:00 PM',
-    status: 'ended',
-    snapshotCount: 12,
-    violationCount: 8,
-  },
-  {
-    id: 'ws-2',
-    toolboxId: 'tb-2',
-    startedAt: '09/06/2026 01:15 PM',
-    endedAt: null,
-    status: 'active',
-    snapshotCount: 8,
-    violationCount: 12,
-  },
-]
-
-const previewPlaceholders = [
-  'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=200&q=60',
-  'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=200&q=60',
-  'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=200&q=60',
-]
-
-export const snapshots: SnapshotRecord[] = Array.from({ length: 10 }, (_, i) => {
-  const violationCount = [0, 12, 0, 12, 0, 12, 0, 12, 0, 12][i]
+/** Shared records pool for list / grid views */
+export const snapshots: SnapshotRecord[] = Array.from({ length: 48 }, (_, i) => {
+  const ids = [
+    'AWDS - 0131 - 2145',
+    'SADA - 0131 - 2145',
+    'SSID - 0102 - 2102',
+    'SSID-1213-4152',
+  ]
   return {
     id: `snap-${i + 1}`,
-    snapshotId: 'IDNO.-012512512',
-    previewUrl: previewPlaceholders[i % previewPlaceholders.length],
-    date: '01/12/2026',
-    time: '09:00 PM',
-    violationCount,
-    status: violationCount === 0 ? 'clear' : 'flagged',
-    accuracy: 92 - (i % 5),
-    workSessionId: i < 5 ? 'ws-1' : 'ws-2',
+    snapshotId: ids[i % ids.length],
+    previewUrl,
+    date: i % 3 === 0 ? 'December 05, 2025' : 'December 12, 2026',
+    time: i % 2 === 0 ? '09:00 PM' : '09:00 AM',
+    violationCount: i % 4 === 0 ? 12 : 0,
+    status: i % 4 === 0 ? 'non_compliant' : 'compliant',
   }
 })
 
-export const recentAnalyses: AnalysisItem[] = [
-  {
-    id: 'a-1',
-    timestamp: 'September 06, 2026 09:00 AM',
-    status: 'flagged',
-    flaggedCount: 2,
-  },
-  {
-    id: 'a-2',
-    timestamp: 'September 06, 2026 09:00 AM',
-    status: 'clear',
-    flaggedCount: 0,
-  },
-  {
-    id: 'a-3',
-    timestamp: 'September 06, 2026 09:00 AM',
-    status: 'flagged',
-    flaggedCount: 2,
-  },
-  {
-    id: 'a-4',
-    timestamp: 'September 06, 2026 09:00 AM',
-    status: 'clear',
-    flaggedCount: 0,
-  },
-]
-
-export const violations: Violation[] = [
-  {
-    id: 'v-1',
-    workerId: 'w-1',
-    snapshotId: 'snap-2',
-    toolboxId: 'tb-1',
-    missingPpe: ['Hard Hat', 'Gloves'],
-    date: '09/06/2026',
-    time: '09:15 AM',
-    notes: 'Worker entered Zone A without hard hat.',
-    reviewed: true,
-  },
-  {
-    id: 'v-2',
-    workerId: 'w-3',
-    snapshotId: 'snap-4',
-    toolboxId: 'tb-1',
-    missingPpe: ['Safety Vest'],
-    date: '09/06/2026',
-    time: '10:02 AM',
-    notes: 'Vest not visible in snapshot.',
-    reviewed: false,
-  },
-  {
-    id: 'v-3',
-    workerId: 'w-4',
-    snapshotId: 'snap-6',
-    toolboxId: 'tb-2',
-    missingPpe: ['Safety Boots', 'Gloves'],
-    date: '09/06/2026',
-    time: '02:20 PM',
-    notes: 'Pending officer confirmation.',
-    reviewed: false,
-  },
-]
-
-export const ppeOptions = [
-  'Hard Hat',
-  'Safety Vest',
-  'Gloves',
-  'Safety Boots',
-] as const
+export const listSnapshots = snapshots
+export const gridSnapshots = snapshots

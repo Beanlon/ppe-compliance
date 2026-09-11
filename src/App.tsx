@@ -4,8 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { LoginPage } from '@/pages/LoginPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { RecordsPage } from '@/pages/RecordsPage'
-import { ToolboxCreatePage } from '@/pages/ToolboxCreatePage'
-import { SettingsPage } from '@/pages/SettingsPage'
+import { AboutPage } from '@/pages/AboutPage'
 
 export default function App() {
   return (
@@ -16,8 +15,7 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route index element={<DashboardPage />} />
             <Route path="records" element={<RecordsPage />} />
-            <Route path="toolbox/create" element={<ToolboxCreatePage />} />
-            <Route path="settings" element={<SettingsPage />} />
+            <Route path="about" element={<AboutPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

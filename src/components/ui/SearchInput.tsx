@@ -15,14 +15,11 @@ export function SearchInput({
   className = '',
   size = 'md',
 }: SearchInputProps) {
-  const sizing =
-    size === 'lg'
-      ? 'h-11 px-4 text-sm'
-      : 'h-10 px-3.5 text-sm'
+  const sizing = size === 'lg' ? 'h-11 px-4 text-sm' : 'h-10 px-4 text-sm'
 
   return (
     <label
-      className={`flex items-center gap-2 rounded-full bg-[#eceef2] text-gray-500 ${sizing} ${className}`}
+      className={`flex items-center gap-2 rounded-xl border border-gray-200 bg-white text-muted ${sizing} ${className}`}
     >
       <Search className="h-4 w-4 shrink-0 opacity-70" />
       <input
@@ -30,7 +27,7 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-transparent outline-none placeholder:text-gray-400 text-gray-800"
+        className="w-full bg-transparent text-ink outline-none placeholder:text-gray-400"
       />
     </label>
   )

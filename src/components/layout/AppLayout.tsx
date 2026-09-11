@@ -1,11 +1,15 @@
+import { useCallback, useState } from 'react'
 import { Outlet, Navigate } from 'react-router-dom'
+import { Menu } from 'lucide-react'
 import { Sidebar } from './Sidebar'
-import { TopBar } from './TopBar'
 import { Footer } from './Footer'
+import { GearSightLogo } from '@/components/brand/GearSightLogo'
 import { useAuth } from '@/context/AuthContext'
 
 export function AppLayout() {
   const { isAuthenticated } = useAuth()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
@@ -13,16 +17,27 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-surface">
-      <div className="flex min-h-0 flex-1">
-        <Sidebar />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <TopBar />
-          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-            <div className="mx-auto w-full max-w-7xl">
-              <Outlet />
-            </div>
-          </main>
-        </div>
+      {/* Collapsible menu only for phones / tablets (< lg) */}
+      <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMenuOpen(true)}
+          className="rounded-lg p-2 text-ink transition hover:bg-gray-100"
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <GearSightLogo
+          variant="onLight"
+          className="min-w-0 [&>span]:text-[1.35rem] [&>svg]:h-8"
+        />
+      </header>
+
+      <div className="flex flex-1">
+        <Sidebar open={menuOpen} onClose={closeMenu} />
+        <main className="min-w-0 flex-1 bg-white px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5 xl:px-8 xl:py-6 2xl:px-10 2xl:py-8">
+          <Outlet />
+        </main>
       </div>
       <Footer />
     </div>
