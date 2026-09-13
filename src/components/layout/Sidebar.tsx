@@ -47,7 +47,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <div className="mb-[clamp(1rem,1.6vw,1.5rem)] border-b border-white/25 pb-[clamp(1rem,1.6vw,1.5rem)]">
           <GearSightLogo
             variant="onDark"
-            className="w-full min-w-0 [&>span]:text-[clamp(1.15rem,1.6vw,1.85rem)] [&>svg]:h-[clamp(1.75rem,2.4vw,2.75rem)]"
+            className="w-full min-w-0 [&>span]:text-xl xl:[&>span]:text-2xl [&>svg]:h-8 xl:[&>svg]:h-10"
           />
         </div>
         <SidebarNav />
@@ -73,7 +73,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           <div className="mb-6 flex items-start justify-between gap-3 border-b border-white/25 pb-5">
             <GearSightLogo
               variant="onDark"
-              className="min-w-0 [&>span]:text-[1.5rem] [&>svg]:h-9"
+              className="min-w-0 [&>span]:text-2xl [&>svg]:h-9"
             />
             <button
               type="button"
@@ -128,7 +128,7 @@ function SidebarNav() {
         >
           <button
             type="button"
-            className="mt-2 w-full rounded-full bg-[#E8C4A8] px-3 py-[clamp(0.7rem,1.1vw,0.9rem)] text-[clamp(10px,0.9vw,12px)] font-bold uppercase tracking-[0.1em] text-[#C45A1A] transition hover:bg-[#f0d0b8]"
+            className="mt-2 w-full rounded-full bg-[#E8C4A8] px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-[#C45A1A] transition hover:bg-[#f0d0b8] sm:py-3 sm:text-sm"
           >
             Show Tutorial
           </button>
@@ -141,7 +141,7 @@ function SidebarNav() {
           logout()
           navigate('/login')
         }}
-        className="mt-[clamp(1rem,1.5vw,1.5rem)] flex items-center gap-2 px-1 py-1 text-[clamp(0.75rem,1.05vw,0.875rem)] font-medium text-white/75 transition hover:text-white"
+        className="mt-4 flex items-center gap-2 px-1 py-1 text-xs font-medium text-white/75 transition hover:text-white sm:mt-6 sm:text-sm"
       >
         <LogOut className="h-[1.1em] w-[1.1em]" />
         Log Out
@@ -166,7 +166,7 @@ function Section({
       <button
         type="button"
         onClick={onToggle}
-        className="mb-3 flex w-full items-center justify-between border-b border-white/30 pb-2 text-[clamp(11px,0.95vw,13px)] font-semibold uppercase tracking-[0.12em] text-white"
+        className="mb-3 flex w-full items-center justify-between border-b border-white/30 pb-2 text-xs font-semibold uppercase tracking-wider text-white sm:text-sm"
       >
         {title}
         <ChevronDown
@@ -194,7 +194,7 @@ function SideLink({
       to={to}
       end={end}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-lg px-1 py-2.5 text-[clamp(0.875rem,1.1vw,1rem)] font-medium transition @[14rem]/nav:px-1.5 ${
+        `flex items-center gap-3 rounded-lg px-1 py-2.5 text-sm font-medium transition @[14rem]/nav:px-1.5 sm:text-base ${
           isActive ? 'text-white' : 'text-white/90 hover:text-white'
         }`
       }

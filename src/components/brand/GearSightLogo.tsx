@@ -57,7 +57,7 @@ export function GearSightLogo({
       </svg>
 
       <span
-        className="font-display text-[1.85rem] font-extrabold leading-[0.85] tracking-[-0.03em] whitespace-nowrap"
+        className="font-display text-3xl font-extrabold leading-[0.85] tracking-tight whitespace-nowrap"
         style={{ color: wordmark }}
       >
         GearSight

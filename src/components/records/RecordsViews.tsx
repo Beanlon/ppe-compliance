@@ -63,7 +63,7 @@ export function RecordsGrid({ rows }: RecordsGridProps) {
           />
           <div className="flex items-end justify-between gap-3 p-4">
             <div className="min-w-0">
-              <h3 className="truncate text-[17px] font-bold text-ink">
+              <h3 className="truncate text-base font-bold text-ink sm:text-lg">
                 {row.snapshotId}
               </h3>
               <p className="mt-1 text-sm text-muted">{row.date}</p>
@@ -80,14 +80,14 @@ export function RecordsGrid({ rows }: RecordsGridProps) {
 function StatusBadge({ status }: { status: SnapshotRecord['status'] }) {
   if (status === 'compliant') {
     return (
-      <span className="inline-flex shrink-0 items-center rounded-full bg-compliant px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-compliant-text">
+      <span className="inline-flex shrink-0 items-center rounded-full bg-compliant px-3 py-1 text-xs font-bold uppercase tracking-wide text-compliant-text">
         Compliant
       </span>
     )
   }
 
   return (
-    <span className="inline-flex shrink-0 items-center rounded-full bg-[#fecaca] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#9f1239]">
+    <span className="inline-flex shrink-0 items-center rounded-full bg-[#fecaca] px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#9f1239]">
       Non-compliant
     </span>
   )

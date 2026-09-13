@@ -22,7 +22,7 @@ export function Footer() {
         <div className="max-w-md">
           <GearSightLogo
             variant="onDark"
-            className="mb-3 [&>span]:text-[1.35rem] [&>svg]:h-8"
+            className="mb-3 [&>span]:text-xl [&>svg]:h-8"
           />
           <p className="text-sm leading-relaxed text-white/55">
             AI-assisted PPE compliance for construction worksites. Making safety

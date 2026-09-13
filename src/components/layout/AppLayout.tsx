@@ -29,7 +29,7 @@ export function AppLayout() {
         </button>
         <GearSightLogo
           variant="onLight"
-          className="min-w-0 [&>span]:text-[1.35rem] [&>svg]:h-8"
+          className="min-w-0 [&>span]:text-xl [&>svg]:h-8"
         />
       </header>
 

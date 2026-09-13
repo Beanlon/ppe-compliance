@@ -40,3 +40,12 @@ body {
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
 }
+
+/* Leaflet map fills its container inside the signup wizard */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  font: inherit;
+  z-index: 0;
+}
+

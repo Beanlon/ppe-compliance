@@ -6,7 +6,6 @@ import {
   type ReactNode,
 } from 'react'
 import type { User, UserRole } from '@/types'
-import { currentUser as defaultUser } from '@/data/mock'
 
 interface AuthContextValue {
   user: User | null
@@ -18,7 +17,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(defaultUser)
+  const [user, setUser] = useState<User | null>(null)
 
   const value = useMemo<AuthContextValue>(
     () => ({

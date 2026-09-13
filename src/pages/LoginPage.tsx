@@ -1,15 +1,14 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
-import { Button } from '@/components/ui/Button'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { GearSightLogo } from '@/components/brand/GearSightLogo'
 import { useAuth } from '@/context/AuthContext'
-import type { UserRole } from '@/types'
 
 export function LoginPage() {
   const { isAuthenticated, login } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('account@gmail.com')
-  const [role, setRole] = useState<UserRole>('safety_officer')
+  const [projectId, setProjectId] = useState('')
+  const [passcode, setPasscode] = useState('')
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />
@@ -17,57 +16,107 @@ export function LoginPage() {
 
   function onSubmit(e: FormEvent) {
     e.preventDefault()
-    login(email, role)
+    login(email, 'safety_officer')
     navigate('/')
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-[radial-gradient(circle_at_top_left,#ffedd5,transparent_40%),radial-gradient(circle_at_bottom_right,#e5e7eb,transparent_45%),#f4f5f7] px-4">
+    <div className="flex h-full min-h-full w-full bg-white">
+      {/* Left banner — full-height half */}
+      <div className="relative hidden h-full min-h-screen w-1/2 shrink-0 md:block">
+        <img
+          src="/brand/login-banner.jpg"
+          alt="PPE detection on a construction site"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+      </div>
+
+      {/* Right form — full-height half */}
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl"
+        className="flex min-h-screen min-w-0 w-full flex-1 flex-col justify-between px-8 py-10 sm:px-12 sm:py-12 lg:px-16 lg:py-14 xl:px-20"
       >
-        <div className="mb-8">
-          <GearSightLogo variant="onLight" />
-          <p className="mt-3 text-sm text-gray-500">
-            AI-Assisted PPE Compliance System
-          </p>
+        <div className="mx-auto w-full max-w-md flex-1">
+          <GearSightLogo
+            variant="onLight"
+            className="[&>span]:text-2xl sm:[&>span]:text-3xl [&>svg]:h-10"
+          />
+
+          <h1 className="mt-10 max-w-[18ch] text-2xl font-bold leading-tight tracking-tight text-ink sm:mt-12 sm:text-3xl lg:text-4xl">
+            Begin your compliance system with GearSight!
+          </h1>
+
+          <div className="mt-10 space-y-4">
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-[#6b7280] sm:text-base">
+                Email
+              </span>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={fieldClass}
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-[#6b7280] sm:text-base">
+                Project ID
+              </span>
+              <input
+                type="text"
+                value={projectId}
+                onChange={(e) => setProjectId(e.target.value)}
+                placeholder="PRJ-0000-ABC"
+                className={fieldClass}
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-[#6b7280] sm:text-base">
+                Passcode
+              </span>
+              <input
+                type="password"
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                placeholder="••••••••"
+                className={fieldClass}
+              />
+            </label>
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                className="text-sm font-medium text-[#6b7280] transition hover:text-navy hover:underline sm:text-base"
+              >
+                Forgot Passcode
+              </button>
+            </div>
+          </div>
         </div>
 
-        <label className="mb-4 block">
-          <span className="mb-1.5 block text-sm font-medium text-gray-700">
-            Email
-          </span>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-[#FF6A1A]"
-          />
-        </label>
-
-        <label className="mb-6 block">
-          <span className="mb-1.5 block text-sm font-medium text-gray-700">
-            Role
-          </span>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value as UserRole)}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-[#FF6A1A]"
+        <div className="mx-auto mt-12 flex w-full max-w-md items-center justify-between gap-4">
+          <Link
+            to="/signup"
+            className="text-sm font-medium text-[#6b7280] transition hover:text-navy hover:underline sm:text-base"
           >
-            <option value="safety_officer">Safety Officer</option>
-            <option value="site_engineer">Site / Project Engineer</option>
-          </select>
-        </label>
+            Don&apos;t have an account?
+          </Link>
 
-        <Button type="submit" className="w-full !bg-[#FF6A1A] hover:!brightness-105">
-          Login
-        </Button>
-        <p className="mt-4 text-center text-xs text-gray-400">
-          Frontend demo — mock auth only. No password required.
-        </p>
+          <button
+            type="submit"
+            className="inline-flex h-11 min-w-[120px] items-center justify-center rounded-full bg-navy px-7 text-sm font-semibold text-white transition hover:bg-[#24314d] sm:text-base"
+          >
+            Log in
+          </button>
+        </div>
       </form>
     </div>
   )
 }
+
+const fieldClass =
+  'h-11 w-full rounded-lg border border-[#d8dce3] bg-white px-3.5 text-sm text-ink outline-none transition placeholder:text-[#9ca3af] focus:border-navy focus:shadow-[0_0_0_3px_rgba(46,58,89,0.12)] sm:text-base'

@@ -32,14 +32,14 @@ export function LiveFeedCard() {
         />
       ))}
 
-      <div className="absolute left-3 top-3 rounded-lg inline-flex items-center gap-2 bg-black/55 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-white sm:left-4 sm:top-4 sm:px-3 sm:text-[11px]">
+      <div className="absolute left-3 top-3 rounded-lg inline-flex items-center gap-2 bg-black/55 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wide text-white sm:left-4 sm:top-4 sm:px-3 sm:text-sm">
         <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
         Live
       </div>
 
       <button
         type="button"
-        className="absolute right-3 rounded-lg top-3 inline-flex max-w-[45%] items-center gap-1.5 truncate border border-gray-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-gray-800 sm:right-4 sm:top-4 sm:max-w-none sm:px-3 sm:text-xs"
+        className="absolute right-3 rounded-lg top-3 inline-flex max-w-[45%] items-center gap-1.5 truncate border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-800 sm:right-4 sm:top-4 sm:max-w-none sm:px-3 sm:text-sm"
       >
         <span className="truncate">{siteInfo.cameraLabel}</span>
         <ChevronDown className="h-3.5 w-3.5 shrink-0 text-gray-500" />

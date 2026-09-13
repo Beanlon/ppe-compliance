@@ -9,7 +9,7 @@ export function RecentSnapshotsCard() {
   return (
     <section className="flex min-h-0 w-full flex-1 flex-col bg-white">
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-gray-200 px-3 py-2.5 @[16rem]/snapshots:px-4 @[16rem]/snapshots:py-3">
-        <h2 className="truncate text-[15px] font-bold text-ink @[16rem]/snapshots:text-[17px]">
+        <h2 className="truncate text-sm font-bold text-ink sm:text-base">
           Recent Snapshots
         </h2>
         <Link
@@ -79,13 +79,13 @@ function SnapshotCard({
         className="aspect-video w-[96px] shrink-0 rounded-md @[16rem]/snapshots:w-[128px] @[16rem]/snapshots:rounded-lg @[22rem]/snapshots:w-[168px]"
       />
       <div className="min-w-0 flex-1 py-0.5">
-        <p className="line-clamp-2 text-[12px] font-bold leading-snug text-ink group-hover:text-navy @[16rem]/snapshots:text-sm">
+        <p className="line-clamp-2 text-xs font-bold leading-snug text-ink group-hover:text-navy @[16rem]/snapshots:text-sm">
           {row.snapshotId}
         </p>
-        <p className="mt-0.5 text-[10px] text-muted @[16rem]/snapshots:mt-1 @[16rem]/snapshots:text-xs">
+        <p className="mt-0.5 text-xs text-muted @[16rem]/snapshots:mt-1">
           {row.date}
         </p>
-        <p className="text-[10px] text-muted @[16rem]/snapshots:text-xs">{row.time}</p>
+        <p className="text-xs text-muted">{row.time}</p>
         <StatusChip hasViolations={hasViolations} count={row.violationCount} />
       </div>
     </article>
@@ -101,14 +101,14 @@ function StatusChip({
 }) {
   if (hasViolations) {
     return (
-      <span className="mt-1 inline-flex rounded-md bg-[#fecaca] px-1.5 py-0.5 text-[9px] font-semibold text-[#9f1239] @[16rem]/snapshots:mt-1.5 @[16rem]/snapshots:px-2 @[16rem]/snapshots:text-[10px]">
+      <span className="mt-1 inline-flex rounded-md bg-[#fecaca] px-1.5 py-0.5 text-xs font-semibold text-[#9f1239] @[16rem]/snapshots:mt-1.5 @[16rem]/snapshots:px-2">
         {count} violations
       </span>
     )
   }
 
   return (
-    <span className="mt-1 inline-flex rounded-md bg-[#bbf7d0] px-1.5 py-0.5 text-[9px] font-semibold text-[#166534] @[16rem]/snapshots:mt-1.5 @[16rem]/snapshots:px-2 @[16rem]/snapshots:text-[10px]">
+    <span className="mt-1 inline-flex rounded-md bg-[#bbf7d0] px-1.5 py-0.5 text-xs font-semibold text-[#166534] @[16rem]/snapshots:mt-1.5 @[16rem]/snapshots:px-2">
       Compliant
     </span>
   )

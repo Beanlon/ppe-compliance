@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 244 280" role="img" aria-label="GearSight icon">
+  <title>GearSight Icon (on dark)</title>
+  <desc>GearSight brand mark for dark backgrounds</desc>
+  <g
+    stroke="#F5F5F5"
+    stroke-width="14"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  >
+    <path d="M25,150 A95,105 0 0 1 215,150" />
+    <line x1="104" y1="66" x2="104" y2="136" />
+    <line x1="140" y1="66" x2="140" y2="136" />
+    <rect
+      x="8"
+      y="142"
+      width="228"
+      height="24"
+      rx="12"
+      fill="#FF6A1A"
+      stroke="#F5F5F5"
+      stroke-width="8"
+    />
+    <rect x="28" y="198" width="184" height="70" rx="32" />
+    <rect x="4" y="218" width="26" height="30" rx="6" />
+    <rect x="210" y="218" width="26" height="30" rx="6" />
+    <line x1="118" y1="198" x2="118" y2="268" />
+    <line x1="92" y1="208" x2="118" y2="208" />
+    <line x1="134" y1="208" x2="150" y2="208" />
+  </g>
+</svg>
