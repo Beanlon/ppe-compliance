@@ -26,7 +26,7 @@ export function LoginPage() {
       <div className="relative hidden h-full min-h-screen w-1/2 shrink-0 md:block">
         <img
           src="/brand/login-banner.jpg"
-          alt="PPE detection on a construction site"
+          alt="Construction crew in PPE paving a road"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />

@@ -22,9 +22,10 @@ const aboutLinks = [{ to: '/about', label: 'About us', icon: Info }]
 interface SidebarProps {
   open: boolean
   onClose: () => void
+  onShowTutorial: () => void
 }
 
-export function Sidebar({ open, onClose }: SidebarProps) {
+export function Sidebar({ open, onClose, onShowTutorial }: SidebarProps) {
   const location = useLocation()
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             className="w-full min-w-0 [&>span]:text-xl xl:[&>span]:text-2xl [&>svg]:h-8 xl:[&>svg]:h-10"
           />
         </div>
-        <SidebarNav />
+        <SidebarNav onShowTutorial={onShowTutorial} />
       </aside>
 
       {/* Phone / tablet drawer only (< lg) */}
@@ -84,14 +85,14 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               <X className="h-5 w-5" />
             </button>
           </div>
-          <SidebarNav />
+          <SidebarNav onShowTutorial={onShowTutorial} />
         </aside>
       </div>
     </>
   )
 }
 
-function SidebarNav() {
+function SidebarNav({ onShowTutorial }: { onShowTutorial: () => void }) {
   const navigate = useNavigate()
   const { logout } = useAuth()
   const [homeOpen, setHomeOpen] = useState(true)
@@ -128,6 +129,7 @@ function SidebarNav() {
         >
           <button
             type="button"
+            onClick={onShowTutorial}
             className="mt-2 w-full rounded-full bg-[#E8C4A8] px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-[#C45A1A] transition hover:bg-[#f0d0b8] sm:py-3 sm:text-sm"
           >
             Show Tutorial

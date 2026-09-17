@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { SnapshotThumb } from '@/components/records/SnapshotThumb'
+import { SnapshotThumb } from '@/components/SnapshotThumb'
 import { recentSnapshots } from '@/data/mock'
 
 /** Two fewer cards so the rail lines up with Today's Summary */
@@ -54,7 +54,7 @@ function SnapshotCard({
 
   if (layout === 'stack') {
     return (
-      <article className="group cursor-pointer">
+      <Link to={`/snapshots/${row.id}`} className="group block">
         <SnapshotThumb
           src={row.previewUrl}
           className="aspect-video w-full rounded-lg"
@@ -68,12 +68,15 @@ function SnapshotCard({
           </p>
           <StatusChip hasViolations={hasViolations} count={row.violationCount} />
         </div>
-      </article>
+      </Link>
     )
   }
 
   return (
-    <article className="group flex cursor-pointer gap-2 @[16rem]/snapshots:gap-3">
+    <Link
+      to={`/snapshots/${row.id}`}
+      className="group flex gap-2 @[16rem]/snapshots:gap-3"
+    >
       <SnapshotThumb
         src={row.previewUrl}
         className="aspect-video w-[96px] shrink-0 rounded-md @[16rem]/snapshots:w-[128px] @[16rem]/snapshots:rounded-lg @[22rem]/snapshots:w-[168px]"
@@ -88,7 +91,7 @@ function SnapshotCard({
         <p className="text-xs text-muted">{row.time}</p>
         <StatusChip hasViolations={hasViolations} count={row.violationCount} />
       </div>
-    </article>
+    </Link>
   )
 }
 

@@ -189,54 +189,10 @@ export function HarnessIcon({ selected = true, className = 'h-6 w-6' }: IconProp
   )
 }
 
-export function HiVisShirtIcon({
-  selected = true,
-  className = 'h-6 w-6',
-}: IconProps) {
-  const { outline, accent } = tones(selected)
-  return (
-    <svg viewBox="0 0 64 64" className={className} aria-hidden fill="none">
-      <path
-        d="M22 12l10 8 10-8 9 7-6 5v30H19V24l-6-5z"
-        stroke={outline}
-        strokeWidth="4.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-      <path
-        d="M19 24l-10 8M45 24l10 8"
-        stroke={outline}
-        strokeWidth="4.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M22 32h20M22 42h20"
-        stroke={accent}
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M32 20v12"
-        stroke={accent}
-        strokeWidth="3.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M26 14c2 3 4 5 6 5s4-2 6-5"
-        stroke={outline}
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
 export const PPE_ICON_MAP = {
   vest: SafetyVestIcon,
   shoes: SafetyShoesIcon,
   gloves: GlovesIcon,
-  shirt: HiVisShirtIcon,
   harness: HarnessIcon,
   hat: HardHatIcon,
 } as const

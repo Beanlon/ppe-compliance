@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { SearchInput } from '@/components/ui/SearchInput'
-import { RecordsGrid, RecordsList } from '@/components/records/RecordsViews'
+import { RecordsGrid, RecordsList } from './components/RecordsViews'
 import { snapshots } from '@/data/mock'
 
 type ViewMode = 'list' | 'grid'

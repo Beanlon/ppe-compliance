@@ -17,9 +17,9 @@ import {
   DEFAULT_CENTER,
   SiteMapPicker,
   type LatLng,
-} from '@/components/signup/SiteMapPicker'
-import { CameraDevicePicker } from '@/components/signup/CameraDevicePicker'
-import { PPE_ICON_MAP, type PpeIconName } from '@/components/signup/PpeIcons'
+} from './components/SiteMapPicker'
+import { CameraDevicePicker } from './components/CameraDevicePicker'
+import { PPE_ICON_MAP, type PpeIconName } from './components/PpeIcons'
 
 const STEPS = [
   {
@@ -47,10 +47,9 @@ const PPE_OPTIONS: {
   label: string
   icon: PpeIconName
 }[] = [
-  { id: 'safety-vest', label: 'Safety Vest', icon: 'vest' },
+  { id: 'safety-vest', label: 'Safety Vest / Shirt', icon: 'vest' },
   { id: 'safety-shoes', label: 'Safety Shoes', icon: 'shoes' },
   { id: 'gloves', label: 'Gloves', icon: 'gloves' },
-  { id: 'hi-vis', label: 'Hi-vis shirt', icon: 'shirt' },
   { id: 'harness', label: 'Harness', icon: 'harness' },
   { id: 'hard-hat', label: 'Hard Hat', icon: 'hat' },
 ]

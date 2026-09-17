@@ -1,4 +1,5 @@
-import { SnapshotThumb } from '@/components/records/SnapshotThumb'
+import { Link } from 'react-router-dom'
+import { SnapshotThumb } from '@/components/SnapshotThumb'
 import type { SnapshotRecord } from '@/types'
 
 interface RecordsListProps {
@@ -35,12 +36,12 @@ export function RecordsList({ rows }: RecordsListProps) {
             </div>
 
             <div className="mt-auto flex justify-end pt-3">
-              <button
-                type="button"
-                className="w-full rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white sm:w-auto sm:py-2"
+              <Link
+                to={`/snapshots/${row.id}`}
+                className="inline-flex w-full items-center justify-center rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white sm:w-auto sm:py-2"
               >
                 View more
-              </button>
+              </Link>
             </div>
           </div>
         </article>
@@ -53,9 +54,10 @@ export function RecordsGrid({ rows }: RecordsGridProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {rows.map((row) => (
-        <article
+        <Link
           key={row.id}
-          className="overflow-hidden rounded-2xl border border-gray-200 bg-white"
+          to={`/snapshots/${row.id}`}
+          className="block overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:border-gray-300"
         >
           <SnapshotThumb
             src={row.previewUrl}
@@ -71,7 +73,7 @@ export function RecordsGrid({ rows }: RecordsGridProps) {
             </div>
             <StatusBadge status={row.status} />
           </div>
-        </article>
+        </Link>
       ))}
     </div>
   )

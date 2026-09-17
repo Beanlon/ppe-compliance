@@ -48,8 +48,14 @@ export function ComplianceBenchmarkCard() {
                 strokeDashoffset={offset}
               />
             </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-2xl font-bold leading-none text-[#22c55e] sm:text-3xl">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <p
+                className={`font-bold leading-none tabular-nums tracking-tighter text-[#22c55e] ${
+                  highCompliance >= 100
+                    ? 'text-[1.05rem] sm:text-lg'
+                    : 'text-xl sm:text-2xl'
+                }`}
+              >
                 {highCompliance}%
               </p>
             </div>
@@ -59,14 +65,18 @@ export function ComplianceBenchmarkCard() {
             <p className="text-sm font-bold leading-tight text-[#22c55e] sm:text-base">
               High Compliance
             </p>
-            <div className="mt-2 space-y-0.5 text-xs text-muted sm:text-sm">
-              <p>
-                Model Accuracy{' '}
-                <span className="font-semibold text-ink">{modelAccuracy}%</span>
+            <div className="mt-2 space-y-1 text-xs text-muted sm:text-sm">
+              <p className="flex items-baseline gap-2">
+                <span className="shrink-0">Model Accuracy</span>
+                <span className="min-w-[3ch] font-semibold tabular-nums text-ink">
+                  {modelAccuracy}%
+                </span>
               </p>
-              <p>
-                PPE Detection{' '}
-                <span className="font-semibold text-ink">{ppeDetection}%</span>
+              <p className="flex items-baseline gap-2">
+                <span className="shrink-0">PPE Detection</span>
+                <span className="min-w-[3ch] font-semibold tabular-nums text-ink">
+                  {ppeDetection}%
+                </span>
               </p>
             </div>
           </div>

@@ -4,12 +4,19 @@ import { Menu } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 import { Footer } from './Footer'
 import { GearSightLogo } from '@/components/brand/GearSightLogo'
+import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay'
 import { useAuth } from '@/context/AuthContext'
 
 export function AppLayout() {
   const { isAuthenticated } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [tutorialOpen, setTutorialOpen] = useState(false)
   const closeMenu = useCallback(() => setMenuOpen(false), [])
+  const openTutorial = useCallback(() => {
+    setMenuOpen(false)
+    setTutorialOpen(true)
+  }, [])
+  const closeTutorial = useCallback(() => setTutorialOpen(false), [])
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
@@ -34,12 +41,18 @@ export function AppLayout() {
       </header>
 
       <div className="flex flex-1">
-        <Sidebar open={menuOpen} onClose={closeMenu} />
+        <Sidebar
+          open={menuOpen}
+          onClose={closeMenu}
+          onShowTutorial={openTutorial}
+        />
         <main className="min-w-0 flex-1 bg-white px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5 xl:px-8 xl:py-6 2xl:px-10 2xl:py-8">
           <Outlet />
         </main>
       </div>
       <Footer />
+
+      <TutorialOverlay open={tutorialOpen} onClose={closeTutorial} />
     </div>
   )
 }
