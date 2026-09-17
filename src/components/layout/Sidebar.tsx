@@ -3,8 +3,10 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   ChevronDown,
   ClipboardList,
+  ClipboardPlus,
   Info,
   LogOut,
+  Users,
   Video,
   X,
   type LucideIcon,
@@ -14,6 +16,8 @@ import { useAuth } from '@/context/AuthContext'
 
 const homeLinks = [
   { to: '/', label: 'Live Feed', icon: Video, end: true },
+  { to: '/toolbox', label: 'Toolbox', icon: ClipboardPlus },
+  { to: '/workers', label: 'Workers', icon: Users },
   { to: '/records', label: 'Records', icon: ClipboardList },
 ]
 

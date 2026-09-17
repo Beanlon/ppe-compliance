@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Camera } from 'lucide-react'
+import { ReportWorkerOverlay } from '@/components/report/ReportWorkerOverlay'
 import { getSnapshotDetail } from '@/data/mock'
+import type { PersonDetection } from '@/types'
 import { DetectionSidebar } from './components/DetectionSidebar'
 import { RecentSnapshotsStrip } from './components/RecentSnapshotsStrip'
 import { SnapshotAnnotatedImage } from './components/SnapshotAnnotatedImage'
@@ -11,9 +13,11 @@ export function SnapshotPage() {
   const navigate = useNavigate()
   const detail = useMemo(() => getSnapshotDetail(snapshotId), [snapshotId])
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
+  const [reportPerson, setReportPerson] = useState<PersonDetection | null>(null)
 
   useEffect(() => {
     setSelectedPersonId(detail?.people[0]?.id ?? null)
+    setReportPerson(null)
   }, [detail])
 
   if (!detail) {
@@ -92,11 +96,20 @@ export function SnapshotPage() {
             detail={detail}
             selectedPersonId={selectedPersonId}
             onSelectPerson={setSelectedPersonId}
+            onReportPerson={setReportPerson}
           />
         </aside>
       </div>
 
       <RecentSnapshotsStrip currentId={detail.id} />
+
+      <ReportWorkerOverlay
+        open={Boolean(reportPerson)}
+        onClose={() => setReportPerson(null)}
+        snapshotId={detail.id}
+        personLabel={reportPerson?.label ?? 'Person'}
+        personDetectionId={reportPerson?.id ?? ''}
+      />
     </div>
   )
 }

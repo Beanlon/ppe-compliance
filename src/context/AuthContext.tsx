@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -10,30 +11,49 @@ import type { User, UserRole } from '@/types'
 interface AuthContextValue {
   user: User | null
   isAuthenticated: boolean
+  /** True for one cycle after login — Live Feed uses this to gate the toolbox prompt */
+  justLoggedIn: boolean
   login: (email: string, role: UserRole) => void
   logout: () => void
+  /** Clear the one-shot login flag after Live Feed has handled it */
+  consumeJustLoggedIn: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [justLoggedIn, setJustLoggedIn] = useState(false)
+
+  const login = useCallback((email: string, role: UserRole) => {
+    setUser({
+      id: 'u-session',
+      name: role === 'safety_officer' ? 'Admin' : 'Site Engineer',
+      email,
+      role,
+    })
+    setJustLoggedIn(true)
+  }, [])
+
+  const logout = useCallback(() => {
+    setUser(null)
+    setJustLoggedIn(false)
+  }, [])
+
+  const consumeJustLoggedIn = useCallback(() => {
+    setJustLoggedIn(false)
+  }, [])
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       isAuthenticated: Boolean(user),
-      login: (email, role) => {
-        setUser({
-          id: 'u-session',
-          name: role === 'safety_officer' ? 'Admin' : 'Site Engineer',
-          email,
-          role,
-        })
-      },
-      logout: () => setUser(null),
+      justLoggedIn,
+      login,
+      logout,
+      consumeJustLoggedIn,
     }),
-    [user],
+    [user, justLoggedIn, login, logout, consumeJustLoggedIn],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

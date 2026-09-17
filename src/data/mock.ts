@@ -4,6 +4,7 @@ import type {
   SnapshotDetail,
   SnapshotRecord,
   User,
+  Worker,
 } from '@/types'
 
 export const currentUser: User = {
@@ -15,6 +16,7 @@ export const currentUser: User = {
 
 export const siteInfo = {
   name: 'A.M. Mata Compound',
+  projectId: 'PRJ-2026-AMT',
   address: 'A.M. Mata Compound Maligaya Avenue Matina Davao City',
   currentDate: 'December 02, 2026',
   currentTime: '09:00 AM',
@@ -23,6 +25,66 @@ export const siteInfo = {
     'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1400&q=80',
   cameraLabel: 'Iriun Webcam',
 }
+
+/** Workers registered under the active project site */
+export const siteWorkers: Worker[] = [
+  {
+    id: 'w-1',
+    name: 'Juan Dela Cruz',
+    role: 'Foreman',
+    phone: '+63 917 555 0101',
+    status: 'active',
+  },
+  {
+    id: 'w-2',
+    name: 'Maria Santos',
+    role: 'Welder',
+    phone: '+63 917 555 0102',
+    status: 'active',
+  },
+  {
+    id: 'w-3',
+    name: 'Pedro Reyes',
+    role: 'Mason',
+    phone: '+63 917 555 0103',
+    status: 'active',
+  },
+  {
+    id: 'w-4',
+    name: 'Ana Villanueva',
+    role: 'Electrician',
+    phone: '+63 917 555 0104',
+    status: 'active',
+  },
+  {
+    id: 'w-5',
+    name: 'Carlos Mendoza',
+    role: 'Laborer',
+    phone: '+63 917 555 0105',
+    status: 'active',
+  },
+  {
+    id: 'w-6',
+    name: 'Lisa Garcia',
+    role: 'Safety Steward',
+    phone: '+63 917 555 0106',
+    status: 'active',
+  },
+  {
+    id: 'w-7',
+    name: 'Roberto Lim',
+    role: 'Crane Operator',
+    phone: '+63 917 555 0107',
+    status: 'inactive',
+  },
+  {
+    id: 'w-8',
+    name: 'Sofia Ramirez',
+    role: 'Carpenter',
+    phone: '+63 917 555 0108',
+    status: 'active',
+  },
+]
 
 export const complianceBenchmark = {
   highCompliance: 85,

@@ -54,3 +54,36 @@ export interface SnapshotDetail extends SnapshotRecord {
   requiredPpe: string[]
   people: PersonDetection[]
 }
+
+export interface Worker {
+  id: string
+  name: string
+  role: string
+  phone?: string
+  status: 'active' | 'inactive'
+}
+
+export interface ToolboxTalk {
+  id: string
+  title: string
+  topic: string
+  conductedBy: string
+  date: string
+  time: string
+  notes: string
+  attendeeIds: string[]
+  /** PPE required / active for today’s work */
+  activePpe: string[]
+  createdAt: string
+}
+
+export interface WorkerReport {
+  id: string
+  workerId: string
+  workerName: string
+  snapshotId: string
+  personLabel: string
+  personDetectionId: string
+  reason: string
+  createdAt: string
+}

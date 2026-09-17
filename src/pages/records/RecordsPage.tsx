@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  LayoutGrid,
+  List,
+} from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { SearchInput } from '@/components/ui/SearchInput'
 import { RecordsGrid, RecordsList } from './components/RecordsViews'
@@ -16,6 +23,7 @@ export function RecordsPage() {
   const [page, setPage] = useState(1)
 
   const pageSize = view === 'list' ? PAGE_SIZE_LIST : PAGE_SIZE_GRID
+  const hasRecords = snapshots.length > 0
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -53,65 +61,85 @@ export function RecordsPage() {
         subtitle="Displays all of the recorded snapshots"
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <SearchInput
-          value={query}
-          onChange={setQuery}
-          placeholder="Search"
-          className="w-full min-w-0 flex-1 sm:min-w-[200px] sm:max-w-2xl"
-        />
-
-        <div className="flex flex-wrap items-center gap-2">
-          <ViewToggle
-            active={view === 'list'}
-            label="List view"
-            onClick={() => setView('list')}
-          >
-            <List className="h-4 w-4" />
-          </ViewToggle>
-          <ViewToggle
-            active={view === 'grid'}
-            label="Grid view"
-            onClick={() => setView('grid')}
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </ViewToggle>
-
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700"
-          >
-            Filter
-            <ChevronDown className="h-4 w-4 text-gray-500" />
-          </button>
+      {!hasRecords ? (
+        <div className="mt-2 flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white px-4 py-16">
+          <ClipboardList className="h-10 w-10 text-gray-300" strokeWidth={1.75} />
+          <p className="mt-4 text-base font-semibold text-ink">No records</p>
+          <p className="mt-1 max-w-sm text-center text-sm text-muted">
+            No snapshot records have been detected yet. Captured moments from
+            the live feed will appear here.
+          </p>
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder="Search"
+              className="w-full min-w-0 flex-1 sm:min-w-[200px] sm:max-w-2xl"
+            />
 
-      <p className="mt-4 text-sm text-muted">
-        {filtered.length} results found
-        {filtered.length > 0 ? (
-          <span className="text-gray-400">
-            {' '}
-            · Showing {from}–{to}
-          </span>
-        ) : null}
-      </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <ViewToggle
+                active={view === 'list'}
+                label="List view"
+                onClick={() => setView('list')}
+              >
+                <List className="h-4 w-4" />
+              </ViewToggle>
+              <ViewToggle
+                active={view === 'grid'}
+                label="Grid view"
+                onClick={() => setView('grid')}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </ViewToggle>
 
-      <div className="mt-4">
-        {view === 'list' ? (
-          <RecordsList rows={pageRows} />
-        ) : (
-          <RecordsGrid rows={pageRows} />
-        )}
-      </div>
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700"
+              >
+                Filter
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              </button>
+            </div>
+          </div>
 
-      {filtered.length > 0 ? (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onChange={setPage}
-        />
-      ) : null}
+          <p className="mt-4 text-sm text-muted">
+            {filtered.length} results found
+            {filtered.length > 0 ? (
+              <span className="text-gray-400">
+                {' '}
+                · Showing {from}–{to}
+              </span>
+            ) : null}
+          </p>
+
+          <div className="mt-4">
+            {filtered.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-4 py-12 text-center">
+                <p className="text-sm font-semibold text-ink">No records found</p>
+                <p className="mt-1 text-sm text-muted">
+                  Nothing matches your search.
+                </p>
+              </div>
+            ) : view === 'list' ? (
+              <RecordsList rows={pageRows} />
+            ) : (
+              <RecordsGrid rows={pageRows} />
+            )}
+          </div>
+
+          {filtered.length > 0 ? (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={setPage}
+            />
+          ) : null}
+        </>
+      )}
     </div>
   )
 }
