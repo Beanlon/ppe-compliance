@@ -1,77 +1,110 @@
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { CheckCircle2, ClipboardList, Plus, Square, UserRound, Users, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import {
+  CheckCircle2,
+  ClipboardList,
+  Plus,
+  Square,
+  Trash2,
+} from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { SearchInput } from '@/components/ui/SearchInput'
+import { AppPageFrame } from '@/components/layout/AppPageFrame'
+import { useAuth } from '@/context/AuthContext'
 import { useSite } from '@/context/SiteContext'
 import { siteInfo } from '@/data/mock'
-import type { Worker } from '@/types'
+import type { ToolboxWorkerEntry, WorkType } from '@/types'
 
 const inputClass =
   'w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-navy focus:ring-[3px] focus:ring-navy/15'
 
-/** PPE options available to mark active for today’s work */
+const inputReadonlyClass =
+  'w-full cursor-not-allowed rounded-xl border border-gray-200 bg-surface px-3.5 py-2.5 text-sm text-ink'
+
 const PPE_OPTIONS = [
-  'Safety Vest / Shirt',
-  'Safety Shoes',
+  'Helmet',
   'Gloves',
-  'Harness',
-  'Hard Hat',
+  'High Visibility Suit',
+  'Boots',
   'Safety Glasses',
-  'Ear Protection',
+  'Harness',
 ] as const
+
+function formatDateMMDDYYYY(d = new Date()) {
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  const yyyy = d.getFullYear()
+  return `${mm}-${dd}-${yyyy}`
+}
+
+function formatTimeAMPM(d = new Date()) {
+  let hours = d.getHours()
+  const minutes = String(d.getMinutes()).padStart(2, '0')
+  const period = hours >= 12 ? 'PM' : 'AM'
+  hours = hours % 12
+  if (hours === 0) hours = 12
+  return `${String(hours).padStart(2, '0')}:${minutes} ${period}`
+}
+
+function newWorkerRow(): ToolboxWorkerEntry {
+  return {
+    id: `tw-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    name: '',
+    position: '',
+  }
+}
 
 export function ToolboxPage() {
   const navigate = useNavigate()
-  const { toolbox, hasToolbox, workers, createToolbox, clearToolbox, projectName } =
+  const { user } = useAuth()
+  const { toolbox, hasToolbox, createToolbox, clearToolbox, projectName } =
     useSite()
 
-  const [title, setTitle] = useState('Pre-shift toolbox talk')
-  const [topic, setTopic] = useState('Required PPE and fall hazards')
-  const [conductedBy, setConductedBy] = useState('Admin')
-  const [date, setDate] = useState(siteInfo.currentDate)
-  const [time, setTime] = useState(siteInfo.currentTime)
-  const [notes, setNotes] = useState('')
-  const [attendeeIds, setAttendeeIds] = useState<string[]>([])
-  const [attendeeQuery, setAttendeeQuery] = useState('')
-  const [activePpe, setActivePpe] = useState<string[]>([
-    'Safety Vest / Shirt',
-    'Safety Shoes',
-    'Hard Hat',
-    'Harness',
+  const permitReceiver = user?.name ?? 'Admin'
+  const dateOfApplication = useMemo(() => formatDateMMDDYYYY(), [])
+  const timeOfApplication = useMemo(() => formatTimeAMPM(), [])
+  const siteAddressName = siteInfo.address
+
+  const [contractorCompanyName, setContractorCompanyName] = useState('')
+  const [workers, setWorkers] = useState<ToolboxWorkerEntry[]>(() => [
+    newWorkerRow(),
+  ])
+  const [workType, setWorkType] = useState<WorkType>('ground')
+  const [requiredPpe, setRequiredPpe] = useState<string[]>([
+    'Helmet',
+    'High Visibility Suit',
+    'Boots',
   ])
 
-  const attendees = useMemo(
-    () =>
-      attendeeIds
-        .map((id) => workers.find((w) => w.id === id))
-        .filter((w): w is Worker => Boolean(w)),
-    [attendeeIds, workers],
+  const filledWorkers = useMemo(
+    () => workers.filter((w) => w.name.trim() && w.position.trim()),
+    [workers],
   )
 
-  const searchResults = useMemo(() => {
-    const q = attendeeQuery.trim().toLowerCase()
-    if (!q) return []
-    return workers.filter(
-      (w) =>
-        !attendeeIds.includes(w.id) &&
-        (w.name.toLowerCase().includes(q) ||
-          w.role.toLowerCase().includes(q) ||
-          (w.phone?.toLowerCase().includes(q) ?? false)),
+  function updateWorker(
+    id: string,
+    field: 'name' | 'position',
+    value: string,
+  ) {
+    setWorkers((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, [field]: value } : w)),
     )
-  }, [workers, attendeeIds, attendeeQuery])
-
-  function addAttendee(id: string) {
-    setAttendeeIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
-    setAttendeeQuery('')
   }
 
-  function removeAttendee(id: string) {
-    setAttendeeIds((prev) => prev.filter((x) => x !== id))
+  function addWorkerRow() {
+    setWorkers((prev) => [...prev, newWorkerRow()])
+  }
+
+  function removeWorkerRow(id: string) {
+    setWorkers((prev) => {
+      if (prev.length <= 1) {
+        return [{ ...prev[0], name: '', position: '' }]
+      }
+      return prev.filter((w) => w.id !== id)
+    })
   }
 
   function togglePpe(label: string) {
-    setActivePpe((prev) =>
+    setRequiredPpe((prev) =>
       prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label],
     )
   }
@@ -79,36 +112,35 @@ export function ToolboxPage() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (
-      !title.trim() ||
-      !topic.trim() ||
-      attendeeIds.length === 0 ||
-      activePpe.length === 0
+      !dateOfApplication.trim() ||
+      !timeOfApplication.trim() ||
+      !contractorCompanyName.trim() ||
+      !siteAddressName.trim() ||
+      filledWorkers.length === 0 ||
+      requiredPpe.length === 0
     ) {
       return
     }
+
     createToolbox({
-      title,
-      topic,
-      conductedBy,
-      date,
-      time,
-      notes,
-      attendeeIds,
-      activePpe,
+      dateOfApplication,
+      timeOfApplication,
+      permitReceiver,
+      contractorCompanyName,
+      siteAddressName,
+      workers: filledWorkers,
+      workType,
+      requiredPpe,
     })
     navigate('/')
   }
 
   if (hasToolbox && toolbox) {
-    const savedAttendees = workers.filter((w) =>
-      toolbox.attendeeIds.includes(w.id),
-    )
-    const todayPpe = toolbox.activePpe ?? []
     return (
-      <div className="w-full">
+      <AppPageFrame padded>
         <PageHeader
           title="Toolbox"
-          subtitle={`Pre-work briefing for ${projectName}`}
+          subtitle={`Work session for ${projectName}`}
         />
 
         <div className="rounded-2xl border border-[#bbf7d0] bg-[#f0fdf4] px-4 py-3 sm:px-5">
@@ -118,7 +150,7 @@ export function ToolboxPage() {
               strokeWidth={2.25}
             />
             <div>
-              <p className="text-sm font-bold text-ink">Toolbox talk on record</p>
+              <p className="text-sm font-bold text-ink">Toolbox session on record</p>
               <p className="mt-0.5 text-sm text-muted">
                 Live Feed monitoring is unlocked for this shift.
               </p>
@@ -132,53 +164,58 @@ export function ToolboxPage() {
               <ClipboardList className="h-5 w-5" strokeWidth={2.25} />
             </span>
             <div className="min-w-0">
-              <h2 className="text-lg font-bold text-ink">{toolbox.title}</h2>
+              <h2 className="text-lg font-bold text-ink">
+                {toolbox.workType === 'arboreal' ? 'Arboreal' : 'Ground'} work
+                session
+              </h2>
               <p className="mt-1 text-sm text-muted">
-                {toolbox.date} · {toolbox.time} · Conducted by{' '}
-                {toolbox.conductedBy}
+                {toolbox.dateOfApplication} · {toolbox.timeOfApplication} ·
+                Permit receiver {toolbox.permitReceiver}
               </p>
             </div>
           </div>
 
           <dl className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-xs font-bold uppercase tracking-wide text-muted">
-                Topic
-              </dt>
-              <dd className="mt-1 text-sm font-semibold text-ink">
-                {toolbox.topic}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-bold uppercase tracking-wide text-muted">
-                Attendees
-              </dt>
-              <dd className="mt-1 text-sm font-semibold text-ink">
-                {savedAttendees.length} workers
-              </dd>
-            </div>
+            <SummaryItem label="Contractor company">
+              {toolbox.contractorCompanyName}
+            </SummaryItem>
+            <SummaryItem label="Site address">
+              {toolbox.siteAddressName}
+            </SummaryItem>
+            <SummaryItem label="Work type">
+              {toolbox.workType === 'arboreal' ? 'Arboreal' : 'Ground'}
+            </SummaryItem>
+            <SummaryItem label="Workers">
+              {toolbox.workers.length} listed
+            </SummaryItem>
           </dl>
-
-          {toolbox.notes ? (
-            <div className="mt-4 border-t border-gray-100 pt-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-muted">
-                Notes
-              </p>
-              <p className="mt-1 text-sm leading-relaxed text-ink">
-                {toolbox.notes}
-              </p>
-            </div>
-          ) : null}
 
           <div className="mt-4 border-t border-gray-100 pt-4">
             <p className="text-xs font-bold uppercase tracking-wide text-muted">
-              PPE active today
+              Workers
             </p>
-            {todayPpe.length === 0 ? (
-              <p className="mt-2 text-sm text-muted">No PPE marked for today.</p>
+            <ul className="mt-2 divide-y divide-gray-100 rounded-xl border border-gray-200">
+              {toolbox.workers.map((w) => (
+                <li
+                  key={w.id}
+                  className="flex flex-wrap items-baseline justify-between gap-2 px-3 py-2.5"
+                >
+                  <span className="text-sm font-semibold text-ink">{w.name}</span>
+                  <span className="text-sm text-muted">{w.position}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-4 border-t border-gray-100 pt-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-muted">
+              PPE required
+            </p>
+            {toolbox.requiredPpe.length === 0 ? (
+              <p className="mt-2 text-sm text-muted">No PPE selected.</p>
             ) : (
               <ul className="mt-2 flex flex-wrap gap-2">
-                {todayPpe.map((item) => (
+                {toolbox.requiredPpe.map((item) => (
                   <li
                     key={item}
                     className="rounded-full border border-[#bbf7d0] bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#166534]"
@@ -190,22 +227,6 @@ export function ToolboxPage() {
             )}
           </div>
 
-          <div className="mt-4 border-t border-gray-100 pt-4">
-            <p className="text-xs font-bold uppercase tracking-wide text-muted">
-              Crew present
-            </p>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {savedAttendees.map((w) => (
-                <li
-                  key={w.id}
-                  className="rounded-full border border-gray-200 bg-surface px-3 py-1 text-xs font-semibold text-ink"
-                >
-                  {w.name}
-                </li>
-              ))}
-            </ul>
-          </div>
-
           <div className="mt-6 flex flex-wrap gap-2">
             <button
               type="button"
@@ -213,14 +234,6 @@ export function ToolboxPage() {
               className="inline-flex h-10 items-center justify-center rounded-full bg-navy px-5 text-sm font-semibold text-white transition hover:bg-[#24314d]"
             >
               Open Live Feed
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/workers')}
-              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-gray-200 bg-white px-5 text-sm font-semibold text-ink transition hover:bg-gray-50"
-            >
-              <Users className="h-4 w-4" />
-              View workers
             </button>
             <button
               type="button"
@@ -235,90 +248,180 @@ export function ToolboxPage() {
             </button>
           </div>
         </article>
-      </div>
+      </AppPageFrame>
     )
   }
 
   return (
-    <div className="w-full">
+    <AppPageFrame padded>
       <PageHeader
         title="Toolbox"
-        subtitle={`Record today’s pre-work briefing for ${projectName}`}
+        subtitle={`Record today’s work session for ${projectName}`}
       />
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5"
+        className="rounded-xl border border-gray-200 bg-white p-3 sm:p-4"
       >
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Title" htmlFor="tb-title">
-            <input
-              id="tb-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Topic" htmlFor="tb-topic">
-            <input
-              id="tb-topic"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              required
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Conducted by" htmlFor="tb-by">
-            <input
-              id="tb-by"
-              value={conductedBy}
-              onChange={(e) => setConductedBy(e.target.value)}
-              required
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Date" htmlFor="tb-date">
+          <Field label="Date of Application (MM-DD-YYYY)" htmlFor="tb-date">
             <input
               id="tb-date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              className={inputClass}
+              value={dateOfApplication}
+              readOnly
+              tabIndex={-1}
+              className={inputReadonlyClass}
+              aria-readonly="true"
             />
           </Field>
-          <Field label="Time" htmlFor="tb-time">
+          <Field label="Time of Application (HH:MM AM/PM)" htmlFor="tb-time">
             <input
               id="tb-time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
+              value={timeOfApplication}
+              readOnly
+              tabIndex={-1}
+              className={inputReadonlyClass}
+              aria-readonly="true"
+            />
+          </Field>
+          <Field label="Permit Receiver" htmlFor="tb-receiver">
+            <input
+              id="tb-receiver"
+              value={permitReceiver}
+              readOnly
+              tabIndex={-1}
+              className={inputReadonlyClass}
+              aria-readonly="true"
+            />
+          </Field>
+          <Field label="Contractor Company Name" htmlFor="tb-company">
+            <input
+              id="tb-company"
+              value={contractorCompanyName}
+              onChange={(e) => setContractorCompanyName(e.target.value)}
               required
               className={inputClass}
+              placeholder="Company name"
+            />
+          </Field>
+          <Field
+            label="Site Address Name"
+            htmlFor="tb-address"
+            className="sm:col-span-2"
+          >
+            <input
+              id="tb-address"
+              value={siteAddressName}
+              readOnly
+              tabIndex={-1}
+              className={inputReadonlyClass}
+              aria-readonly="true"
             />
           </Field>
         </div>
 
-        <Field label="Notes (optional)" htmlFor="tb-notes" className="mt-4">
-          <textarea
-            id="tb-notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={3}
-            className={`${inputClass} min-h-[5.5rem] resize-y`}
-            placeholder="Hazards, PPE reminders, permit notes…"
-          />
-        </Field>
+        <fieldset className="mt-5">
+          <legend className="text-sm font-bold text-ink">
+            Workers ({filledWorkers.length})
+          </legend>
+          <p className="mt-1 text-sm text-muted">
+            Enter each worker’s name and position / work. Add rows if you need
+            more.
+          </p>
+
+          <ul className="mt-3 space-y-3">
+            {workers.map((worker, index) => (
+              <li
+                key={worker.id}
+                className="grid gap-3 rounded-xl border border-gray-200 bg-surface/40 p-3 sm:grid-cols-[1fr_1fr_auto]"
+              >
+                <Field
+                  label={index === 0 ? 'Name' : `Name ${index + 1}`}
+                  htmlFor={`tb-worker-name-${worker.id}`}
+                >
+                  <input
+                    id={`tb-worker-name-${worker.id}`}
+                    value={worker.name}
+                    onChange={(e) =>
+                      updateWorker(worker.id, 'name', e.target.value)
+                    }
+                    className={inputClass}
+                    placeholder="Worker name"
+                    required={index === 0}
+                  />
+                </Field>
+                <Field
+                  label={index === 0 ? 'Position / Work' : `Position ${index + 1}`}
+                  htmlFor={`tb-worker-role-${worker.id}`}
+                >
+                  <input
+                    id={`tb-worker-role-${worker.id}`}
+                    value={worker.position}
+                    onChange={(e) =>
+                      updateWorker(worker.id, 'position', e.target.value)
+                    }
+                    className={inputClass}
+                    placeholder="Position or work"
+                    required={index === 0}
+                  />
+                </Field>
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={() => removeWorkerRow(worker.id)}
+                    className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-muted transition hover:bg-gray-50 hover:text-ink sm:w-10"
+                    aria-label={`Remove worker row ${index + 1}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="sm:hidden">Remove</span>
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <button
+            type="button"
+            onClick={addWorkerRow}
+            className="mt-3 inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-ink transition hover:bg-gray-50"
+          >
+            <Plus className="h-4 w-4" />
+            Add worker
+          </button>
+        </fieldset>
+
+        <fieldset className="mt-5">
+          <legend className="text-sm font-bold text-ink">Select Work Type</legend>
+          <div
+            role="group"
+            aria-label="Work type"
+            className="mt-3 inline-flex rounded-full border border-gray-200 bg-surface p-1"
+          >
+            <WorkTypeButton
+              active={workType === 'ground'}
+              onClick={() => setWorkType('ground')}
+            >
+              Ground
+            </WorkTypeButton>
+            <WorkTypeButton
+              active={workType === 'arboreal'}
+              onClick={() => setWorkType('arboreal')}
+            >
+              Arboreal
+            </WorkTypeButton>
+          </div>
+        </fieldset>
 
         <fieldset className="mt-5">
           <legend className="text-sm font-bold text-ink">
-            PPE active today ({activePpe.length})
+            Select PPE required ({requiredPpe.length})
           </legend>
           <p className="mt-1 text-sm text-muted">
-            Check which PPE is required or in use for today’s work.
+            Check which PPE is required for this work session.
           </p>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {PPE_OPTIONS.map((item) => {
-              const checked = activePpe.includes(item)
+              const checked = requiredPpe.includes(item)
               return (
                 <li key={item}>
                   <label
@@ -342,108 +445,15 @@ export function ToolboxPage() {
           </ul>
         </fieldset>
 
-        <fieldset className="mt-5">
-          <legend className="text-sm font-bold text-ink">
-            Attendees ({attendees.length})
-          </legend>
-          <p className="mt-1 text-sm text-muted">
-            Search for workers, then add them to today’s toolbox talk.
-          </p>
-
-          {workers.length === 0 ? (
-            <div className="mt-3 rounded-xl border border-dashed border-gray-200 bg-surface/60 px-4 py-5 text-center">
-              <p className="text-sm font-semibold text-ink">
-                No workers registered yet
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                Add crew on the Workers page before assigning attendees.
-              </p>
-              <Link
-                to="/workers"
-                className="mt-3 inline-flex h-9 items-center justify-center rounded-full bg-navy px-4 text-sm font-semibold text-white transition hover:bg-[#24314d]"
-              >
-                Go to Workers
-              </Link>
-            </div>
-          ) : (
-            <>
-              <div className="relative mt-3">
-                <SearchInput
-                  value={attendeeQuery}
-                  onChange={setAttendeeQuery}
-                  placeholder="Search by name or role"
-                  className="w-full"
-                />
-                {attendeeQuery.trim() ? (
-                  <ul className="absolute z-20 mt-1.5 max-h-56 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg">
-                    {searchResults.length === 0 ? (
-                      <li className="px-3 py-3 text-sm text-muted">
-                        No matching workers to add.
-                      </li>
-                    ) : (
-                      searchResults.map((worker) => (
-                        <li key={worker.id} className="border-b border-gray-50 last:border-0">
-                          <button
-                            type="button"
-                            onClick={() => addAttendee(worker.id)}
-                            className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-gray-50"
-                          >
-                            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface text-navy">
-                              <UserRound className="h-4 w-4" strokeWidth={2.25} />
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm font-semibold text-ink">
-                                {worker.name}
-                              </span>
-                              <span className="block truncate text-xs text-muted">
-                                {worker.role}
-                                {worker.phone ? ` · ${worker.phone}` : null}
-                              </span>
-                            </span>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-navy px-2.5 py-1 text-xs font-semibold text-white">
-                              <Plus className="h-3.5 w-3.5" />
-                              Add
-                            </span>
-                          </button>
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                ) : null}
-              </div>
-
-              {attendees.length > 0 ? (
-                <ul className="mt-3 flex flex-wrap gap-2">
-                  {attendees.map((worker) => (
-                    <li
-                      key={worker.id}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-surface pl-3 pr-1.5 py-1 text-sm font-semibold text-ink"
-                    >
-                      {worker.name}
-                      <button
-                        type="button"
-                        onClick={() => removeAttendee(worker.id)}
-                        className="rounded-full p-1 text-muted transition hover:bg-white hover:text-ink"
-                        aria-label={`Remove ${worker.name}`}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-3 text-sm text-muted">
-                  No attendees added yet.
-                </p>
-              )}
-            </>
-          )}
-        </fieldset>
-
         <div className="mt-6 flex flex-wrap gap-2">
           <button
             type="submit"
-            disabled={attendeeIds.length === 0 || activePpe.length === 0}
+            disabled={
+              filledWorkers.length === 0 ||
+              requiredPpe.length === 0 ||
+              !contractorCompanyName.trim() ||
+              !siteAddressName.trim()
+            }
             className="inline-flex h-10 items-center justify-center rounded-full bg-navy px-5 text-sm font-semibold text-white transition hover:bg-[#24314d] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Save toolbox & open Live Feed
@@ -457,7 +467,32 @@ export function ToolboxPage() {
           </button>
         </div>
       </form>
-    </div>
+    </AppPageFrame>
+  )
+}
+
+function WorkTypeButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
+        active
+          ? 'bg-navy text-white shadow-sm'
+          : 'text-muted hover:text-ink'
+      }`}
+    >
+      {children}
+    </button>
   )
 }
 
@@ -481,6 +516,23 @@ function Field({
         {label}
       </label>
       {children}
+    </div>
+  )
+}
+
+function SummaryItem({
+  label,
+  children,
+}: {
+  label: string
+  children: ReactNode
+}) {
+  return (
+    <div>
+      <dt className="text-xs font-bold uppercase tracking-wide text-muted">
+        {label}
+      </dt>
+      <dd className="mt-1 text-sm font-semibold text-ink">{children}</dd>
     </div>
   )
 }

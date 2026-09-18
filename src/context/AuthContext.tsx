@@ -4,6 +4,7 @@ import {
   useContext,
   useMemo,
   useState,
+  type Context,
   type ReactNode,
 } from 'react'
 import type { User, UserRole } from '@/types'
@@ -19,7 +20,15 @@ interface AuthContextValue {
   consumeJustLoggedIn: () => void
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null)
+/** Preserve context identity across Vite HMR so hooks don't crash to a white screen */
+const AUTH_CONTEXT_KEY = '__gearsightAuthContext'
+const globalStore = globalThis as unknown as Record<
+  string,
+  Context<AuthContextValue | null> | undefined
+>
+const AuthContext =
+  globalStore[AUTH_CONTEXT_KEY] ?? createContext<AuthContextValue | null>(null)
+globalStore[AUTH_CONTEXT_KEY] = AuthContext
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)

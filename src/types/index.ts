@@ -63,18 +63,37 @@ export interface Worker {
   status: 'active' | 'inactive'
 }
 
+export type WorkType = 'ground' | 'arboreal'
+
+/** Inline crew entry captured on the toolbox / permit form */
+export interface ToolboxWorkerEntry {
+  id: string
+  name: string
+  position: string
+}
+
 export interface ToolboxTalk {
   id: string
-  title: string
-  topic: string
-  conductedBy: string
-  date: string
-  time: string
-  notes: string
-  attendeeIds: string[]
-  /** PPE required / active for today’s work */
-  activePpe: string[]
+  /** MM-DD-YYYY */
+  dateOfApplication: string
+  /** HH:MM AM/PM */
+  timeOfApplication: string
+  /** Logged-in user; not editable on the form */
+  permitReceiver: string
+  contractorCompanyName: string
+  siteAddressName: string
+  workers: ToolboxWorkerEntry[]
+  workType: WorkType
+  /** PPE required for this work session */
+  requiredPpe: string[]
   createdAt: string
+}
+
+/** Archived / listed toolbox session with its captured snapshots */
+export interface ToolboxSessionRecord extends ToolboxTalk {
+  /** null while the session is still active */
+  endedAt: string | null
+  snapshots: SnapshotRecord[]
 }
 
 export interface WorkerReport {

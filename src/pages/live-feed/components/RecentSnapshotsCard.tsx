@@ -4,7 +4,8 @@ import { SnapshotThumb } from '@/components/SnapshotThumb'
 import { useSite } from '@/context/SiteContext'
 
 export function RecentSnapshotsCard() {
-  const { recentSnapshots } = useSite()
+  const { recentSnapshots, toolbox } = useSite()
+  const seeAllTo = toolbox ? `/records/${toolbox.id}` : '/records'
 
   return (
     <section className="flex min-h-0 w-full flex-1 flex-col bg-white">
@@ -14,7 +15,7 @@ export function RecentSnapshotsCard() {
         </h2>
         {recentSnapshots.length > 0 ? (
           <Link
-            to="/records"
+            to={seeAllTo}
             className="shrink-0 text-xs font-semibold text-[#e8a06a] hover:underline @[16rem]/snapshots:text-sm"
           >
             See all

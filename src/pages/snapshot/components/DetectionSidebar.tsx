@@ -7,6 +7,7 @@ interface DetectionSidebarProps {
   selectedPersonId: string | null
   onSelectPerson: (personId: string) => void
   onReportPerson?: (person: PersonDetection) => void
+  reportedPersonIds?: Set<string>
 }
 
 export function DetectionSidebar({
@@ -14,6 +15,7 @@ export function DetectionSidebar({
   selectedPersonId,
   onSelectPerson,
   onReportPerson,
+  reportedPersonIds,
 }: DetectionSidebarProps) {
   const selected =
     detail.people.find((p) => p.id === selectedPersonId) ?? detail.people[0]
@@ -57,6 +59,7 @@ export function DetectionSidebar({
         <PersonDetail
           person={selected}
           requiredPpe={detail.requiredPpe}
+          reported={reportedPersonIds?.has(selected.id) ?? false}
           onReport={onReportPerson ? () => onReportPerson(selected) : undefined}
         />
       ) : (
@@ -70,13 +73,16 @@ function PersonDetail({
   person,
   requiredPpe,
   onReport,
+  reported,
 }: {
   person: PersonDetection
   requiredPpe: string[]
   onReport?: () => void
+  reported: boolean
 }) {
   const detected = person.ppe.filter((p) => isFullyDetected(p))
   const gaps = person.ppe.filter((p) => !isFullyDetected(p))
+  const compliant = person.status === 'compliant'
 
   return (
     <div className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto p-2.5 @[16rem]/detections:p-3">
@@ -96,25 +102,27 @@ function PersonDetail({
         <button
           type="button"
           onClick={onReport}
-          disabled={person.status === 'compliant'}
+          disabled={compliant || reported}
           title={
-            person.status === 'compliant'
+            compliant
               ? 'Compliant detections cannot be reported'
-              : 'Report this detection as a worker'
+              : reported
+                ? 'Already reported'
+                : 'Report this PPE detection'
           }
           className={`mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
-            person.status === 'compliant'
+            compliant || reported
               ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
               : 'border-gray-200 bg-white text-ink hover:bg-gray-50'
           }`}
         >
           <Flag
             className={`h-4 w-4 ${
-              person.status === 'compliant' ? 'text-gray-400' : 'text-accent'
+              compliant || reported ? 'text-gray-400' : 'text-accent'
             }`}
             strokeWidth={2.25}
           />
-          Report worker
+          {reported ? 'Reported' : 'Report'}
         </button>
       ) : null}
 
