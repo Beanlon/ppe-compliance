@@ -19,13 +19,12 @@ import {
   type LatLng,
 } from './components/SiteMapPicker'
 import { CameraDevicePicker } from './components/CameraDevicePicker'
-import { PPE_ICON_MAP, type PpeIconName } from './components/PpeIcons'
 
 const STEPS = [
   {
     id: 1,
     label: 'Site Information',
-    description: 'Pin the location and choose required PPE.',
+    description: 'Pin the project site on the map.',
     icon: MapPin,
   },
   {
@@ -41,18 +40,6 @@ const STEPS = [
     icon: Video,
   },
 ] as const
-
-const PPE_OPTIONS: {
-  id: string
-  label: string
-  icon: PpeIconName
-}[] = [
-  { id: 'safety-vest', label: 'Safety Vest / Shirt', icon: 'vest' },
-  { id: 'safety-shoes', label: 'Safety Shoes', icon: 'shoes' },
-  { id: 'gloves', label: 'Gloves', icon: 'gloves' },
-  { id: 'harness', label: 'Harness', icon: 'harness' },
-  { id: 'hard-hat', label: 'Hard Hat', icon: 'hat' },
-]
 
 function makeProjectId() {
   return (
@@ -72,11 +59,6 @@ export function SignUpPage() {
   const [address, setAddress] = useState(
     'A.M. Mata Compound Maligaya Avenue, Matina Davao City',
   )
-  const [selectedPpe, setSelectedPpe] = useState<string[]>([
-    'safety-vest',
-    'safety-shoes',
-    'gloves',
-  ])
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -92,12 +74,6 @@ export function SignUpPage() {
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />
-  }
-
-  function togglePpe(id: string) {
-    setSelectedPpe((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    )
   }
 
   function go(dir: -1 | 1) {
@@ -248,8 +224,6 @@ export function SignUpPage() {
                 mapPosition={mapPosition}
                 onMapPosition={setMapPosition}
                 onAddress={setAddress}
-                selectedPpe={selectedPpe}
-                onTogglePpe={togglePpe}
               />
             )}
             {step === 2 && (
@@ -318,19 +292,14 @@ function SiteInformationStep({
   mapPosition,
   onMapPosition,
   onAddress,
-  selectedPpe,
-  onTogglePpe,
 }: {
   address: string
   mapPosition: LatLng
   onMapPosition: (pos: LatLng) => void
   onAddress: (address: string) => void
-  selectedPpe: string[]
-  onTogglePpe: (id: string) => void
 }) {
   return (
     <div className="grid h-full min-h-[520px] grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-5">
-      {/* Map column — search above + pure map */}
       <div className="min-h-[420px] lg:col-span-3 lg:min-h-0">
         <SiteMapPicker
           position={mapPosition}
@@ -341,41 +310,11 @@ function SiteInformationStep({
         />
       </div>
 
-      {/* Side card — address + PPE icons */}
-      <div className="flex flex-col gap-5 rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-sm lg:col-span-1 lg:self-stretch">
-        <div>
-          <h3 className="text-base font-bold text-ink sm:text-lg">Address</h3>
-          <p className="mt-2 text-sm leading-relaxed text-[#4b5563] sm:text-base">
-            {address}
-          </p>
-        </div>
-
-        <div className="h-px bg-[#e5e7eb]" />
-
-        <div className="min-h-0 flex-1">
-          <h3 className="mb-3 text-base font-bold text-ink sm:text-lg">Required PPE</h3>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
-            {PPE_OPTIONS.map((item) => {
-              const selected = selectedPpe.includes(item.id)
-              const Icon = PPE_ICON_MAP[item.icon]
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => onTogglePpe(item.id)}
-                  className={`flex min-h-[52px] items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition sm:text-base ${
-                    selected
-                      ? 'border border-[#f0b27a] bg-[#fce8d5] text-[#c2410c]'
-                      : 'border border-[#e5e7eb] bg-[#f8f9fb] text-[#4b5563] hover:border-[#d1d5db]'
-                  }`}
-                >
-                  <Icon selected={selected} className="h-7 w-7 shrink-0" />
-                  <span className="leading-tight">{item.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
+      <div className="flex flex-col rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-sm lg:col-span-1 lg:self-stretch">
+        <h3 className="text-base font-bold text-ink sm:text-lg">Address</h3>
+        <p className="mt-2 text-sm leading-relaxed text-[#4b5563] sm:text-base">
+          {address}
+        </p>
       </div>
     </div>
   )
