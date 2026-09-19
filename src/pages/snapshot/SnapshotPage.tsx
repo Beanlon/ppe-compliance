@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Camera } from 'lucide-react'
+import { AppPageFrame } from '@/components/layout/AppPageFrame'
+import { useSite } from '@/context/SiteContext'
 import { getSnapshotDetail } from '@/data/mock'
+import type { PersonDetection } from '@/types'
 import { DetectionSidebar } from './components/DetectionSidebar'
 import { RecentSnapshotsStrip } from './components/RecentSnapshotsStrip'
 import { SnapshotAnnotatedImage } from './components/SnapshotAnnotatedImage'
@@ -9,16 +12,36 @@ import { SnapshotAnnotatedImage } from './components/SnapshotAnnotatedImage'
 export function SnapshotPage() {
   const { snapshotId = '' } = useParams()
   const navigate = useNavigate()
+  const { reportDetection, reports } = useSite()
   const detail = useMemo(() => getSnapshotDetail(snapshotId), [snapshotId])
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
+
+  const reportedPersonIds = useMemo(() => {
+    if (!detail) return new Set<string>()
+    return new Set(
+      reports
+        .filter((r) => r.snapshotId === detail.id)
+        .map((r) => r.personDetectionId),
+    )
+  }, [reports, detail])
 
   useEffect(() => {
     setSelectedPersonId(detail?.people[0]?.id ?? null)
   }, [detail])
 
+  function handleReportPerson(person: PersonDetection) {
+    if (!detail || person.status === 'compliant') return
+    if (reportedPersonIds.has(person.id)) return
+    reportDetection({
+      snapshotId: detail.id,
+      personLabel: person.label,
+      personDetectionId: person.id,
+    })
+  }
+
   if (!detail) {
     return (
-      <div className="-mx-3 -my-3 border border-gray-200 bg-white sm:-mx-4 sm:-my-4 lg:-mx-5 lg:-my-5 xl:-mx-8 xl:-my-6 2xl:-mx-10 2xl:-my-8">
+      <AppPageFrame>
         <div className="border-b border-gray-200 px-3 py-2.5">
           <Link
             to="/records"
@@ -34,70 +57,74 @@ export function SnapshotPage() {
             It may have been removed from records.
           </p>
         </div>
-      </div>
+      </AppPageFrame>
     )
   }
 
   return (
-    <div className="-mx-3 -my-3 border border-gray-200 bg-white sm:-mx-4 sm:-my-4 lg:-mx-5 lg:-my-5 xl:-mx-8 xl:-my-6 2xl:-mx-10 2xl:-my-8">
-      <div className="flex flex-col lg:flex-row lg:items-stretch">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex flex-wrap items-center gap-2 border-b border-gray-200 px-2.5 py-2 sm:px-3 sm:py-2.5">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm font-semibold text-muted transition hover:bg-gray-50 hover:text-ink"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </button>
-            <span className="hidden h-4 w-px bg-gray-200 sm:block" />
-            <h1 className="min-w-0 truncate text-base font-bold text-ink sm:text-lg">
-              {detail.snapshotId}
-            </h1>
-            <div className="ml-auto flex flex-wrap items-center gap-1.5">
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-medium text-ink sm:text-sm">
-                <Camera className="h-3.5 w-3.5 text-muted" />
-                {detail.cameraLabel}
-              </span>
-              <span className="text-xs text-muted sm:text-sm">
-                {detail.date} · {detail.time}
-              </span>
-              <OverallStatus
-                status={detail.status}
-                violations={detail.violationCount}
-              />
-            </div>
-          </header>
+    <AppPageFrame>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
+            <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-gray-200 px-2.5 py-2 sm:px-3 sm:py-2.5">
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm font-semibold text-muted transition hover:bg-gray-50 hover:text-ink"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </button>
+              <span className="hidden h-4 w-px bg-gray-200 sm:block" />
+              <h1 className="min-w-0 truncate text-base font-bold text-ink sm:text-lg">
+                {detail.snapshotId}
+              </h1>
+              <div className="ml-auto flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-medium text-ink sm:text-sm">
+                  <Camera className="h-3.5 w-3.5 text-muted" />
+                  {detail.cameraLabel}
+                </span>
+                <span className="text-xs text-muted sm:text-sm">
+                  {detail.date} · {detail.time}
+                </span>
+                <OverallStatus
+                  status={detail.status}
+                  violations={detail.violationCount}
+                />
+              </div>
+            </header>
 
-          <SnapshotAnnotatedImage
-            detail={detail}
-            selectedPersonId={selectedPersonId}
-            onSelectPerson={setSelectedPersonId}
-          />
+            <SnapshotAnnotatedImage
+              detail={detail}
+              selectedPersonId={selectedPersonId}
+              onSelectPerson={setSelectedPersonId}
+            />
 
-          <section className="border-t border-gray-200 px-2.5 py-2.5 sm:px-3 sm:py-3">
-            <h2 className="text-sm font-bold text-ink sm:text-base">
-              Detection legend
-            </h2>
-            <p className="mt-1 text-xs text-muted sm:text-sm">
-              Outer boxes mark each person; inner boxes mark that person’s PPE.
-            </p>
-            <Legend />
-          </section>
+            <section className="shrink-0 border-t border-gray-200 px-2.5 py-2.5 sm:px-3 sm:py-3">
+              <h2 className="text-sm font-bold text-ink sm:text-base">
+                Detection legend
+              </h2>
+              <p className="mt-1 text-xs text-muted sm:text-sm">
+                Outer boxes mark each person; inner boxes mark that person’s PPE.
+              </p>
+              <Legend />
+            </section>
+          </div>
+
+          <aside className="@container/detections flex min-h-[16rem] w-full shrink-0 flex-col self-stretch border-t border-gray-200 lg:min-h-0 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
+            <DetectionSidebar
+              detail={detail}
+              selectedPersonId={selectedPersonId}
+              onSelectPerson={setSelectedPersonId}
+              onReportPerson={handleReportPerson}
+              reportedPersonIds={reportedPersonIds}
+            />
+          </aside>
         </div>
 
-        <aside className="@container/detections flex w-full min-h-0 shrink-0 flex-col self-stretch border-t border-gray-200 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
-          <DetectionSidebar
-            detail={detail}
-            selectedPersonId={selectedPersonId}
-            onSelectPerson={setSelectedPersonId}
-          />
-        </aside>
+        <RecentSnapshotsStrip currentId={detail.id} />
       </div>
-
-      <RecentSnapshotsStrip currentId={detail.id} />
-    </div>
+    </AppPageFrame>
   )
 }
 

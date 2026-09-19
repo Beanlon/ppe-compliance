@@ -1,44 +1,60 @@
 import { Link } from 'react-router-dom'
+import { CameraOff } from 'lucide-react'
 import { SnapshotThumb } from '@/components/SnapshotThumb'
-import { recentSnapshots } from '@/data/mock'
-
-/** Two fewer cards so the rail lines up with Today's Summary */
-const visibleSnapshots = recentSnapshots.slice(0, -2)
+import { useSite } from '@/context/SiteContext'
 
 export function RecentSnapshotsCard() {
+  const { recentSnapshots, toolbox } = useSite()
+  const seeAllTo = toolbox ? `/records/${toolbox.id}` : '/records'
+
   return (
     <section className="flex min-h-0 w-full flex-1 flex-col bg-white">
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-gray-200 px-3 py-2.5 @[16rem]/snapshots:px-4 @[16rem]/snapshots:py-3">
         <h2 className="truncate text-sm font-bold text-ink sm:text-base">
           Recent Snapshots
         </h2>
-        <Link
-          to="/records"
-          className="shrink-0 text-xs font-semibold text-[#e8a06a] hover:underline @[16rem]/snapshots:text-sm"
-        >
-          See all
-        </Link>
+        {recentSnapshots.length > 0 ? (
+          <Link
+            to={seeAllTo}
+            className="shrink-0 text-xs font-semibold text-[#e8a06a] hover:underline @[16rem]/snapshots:text-sm"
+          >
+            See all
+          </Link>
+        ) : null}
       </div>
 
-      {/* Phone / narrow: horizontal strip */}
-      <div className="scrollbar-hidden overflow-x-auto overscroll-x-contain p-3 lg:hidden">
-        <ul className="flex w-max gap-3">
-          {visibleSnapshots.map((row) => (
-            <li key={row.id} className="w-[200px] shrink-0 sm:w-[220px]">
-              <SnapshotCard row={row} layout="stack" />
-            </li>
-          ))}
-        </ul>
-      </div>
+      {recentSnapshots.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center px-4 py-10">
+          <CameraOff className="h-8 w-8 text-gray-300" strokeWidth={1.75} />
+          <p className="mt-3 text-center text-sm font-semibold text-ink">
+            No snapshots captured
+          </p>
+          <p className="mt-1 max-w-[14rem] text-center text-xs text-muted">
+            This project is newly set up. Snapshots will appear here once the
+            live feed starts recording.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="scrollbar-hidden overflow-x-auto overscroll-x-contain p-3 lg:hidden">
+            <ul className="flex w-max gap-3">
+              {recentSnapshots.map((row) => (
+                <li key={row.id} className="w-[200px] shrink-0 sm:w-[220px]">
+                  <SnapshotCard row={row} layout="stack" />
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      {/* Tablet landscape + desktop: compact when rail is narrow */}
-      <ul className="scrollbar-hidden hidden min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-2 @[16rem]/snapshots:space-y-3 @[16rem]/snapshots:p-3 lg:block">
-        {visibleSnapshots.map((row) => (
-          <li key={row.id}>
-            <SnapshotCard row={row} layout="row" />
-          </li>
-        ))}
-      </ul>
+          <ul className="scrollbar-hidden hidden min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-2 @[16rem]/snapshots:space-y-3 @[16rem]/snapshots:p-3 lg:block">
+            {recentSnapshots.map((row) => (
+              <li key={row.id}>
+                <SnapshotCard row={row} layout="row" />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </section>
   )
 }
@@ -47,7 +63,14 @@ function SnapshotCard({
   row,
   layout,
 }: {
-  row: (typeof recentSnapshots)[number]
+  row: {
+    id: string
+    snapshotId: string
+    previewUrl: string
+    date: string
+    time: string
+    violationCount: number
+  }
   layout: 'row' | 'stack'
 }) {
   const hasViolations = row.violationCount > 0

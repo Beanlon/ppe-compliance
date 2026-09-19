@@ -3,7 +3,9 @@ import type {
   PersonDetection,
   SnapshotDetail,
   SnapshotRecord,
+  ToolboxSessionRecord,
   User,
+  Worker,
 } from '@/types'
 
 export const currentUser: User = {
@@ -15,14 +17,74 @@ export const currentUser: User = {
 
 export const siteInfo = {
   name: 'A.M. Mata Compound',
+  projectId: 'PRJ-2026-AMT',
   address: 'A.M. Mata Compound Maligaya Avenue Matina Davao City',
   currentDate: 'December 02, 2026',
   currentTime: '09:00 AM',
-  requiredPpe: ['Safety Vest', 'Safety Shoes', 'Harness', 'Helmet'],
   liveFeedUrl:
     'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1400&q=80',
   cameraLabel: 'Iriun Webcam',
 }
+
+/** Workers registered under the active project site */
+export const siteWorkers: Worker[] = [
+  {
+    id: 'w-1',
+    name: 'Juan Dela Cruz',
+    role: 'Foreman',
+    phone: '+63 917 555 0101',
+    status: 'active',
+  },
+  {
+    id: 'w-2',
+    name: 'Maria Santos',
+    role: 'Welder',
+    phone: '+63 917 555 0102',
+    status: 'active',
+  },
+  {
+    id: 'w-3',
+    name: 'Pedro Reyes',
+    role: 'Mason',
+    phone: '+63 917 555 0103',
+    status: 'active',
+  },
+  {
+    id: 'w-4',
+    name: 'Ana Villanueva',
+    role: 'Electrician',
+    phone: '+63 917 555 0104',
+    status: 'active',
+  },
+  {
+    id: 'w-5',
+    name: 'Carlos Mendoza',
+    role: 'Laborer',
+    phone: '+63 917 555 0105',
+    status: 'active',
+  },
+  {
+    id: 'w-6',
+    name: 'Lisa Garcia',
+    role: 'Safety Steward',
+    phone: '+63 917 555 0106',
+    status: 'active',
+  },
+  {
+    id: 'w-7',
+    name: 'Roberto Lim',
+    role: 'Crane Operator',
+    phone: '+63 917 555 0107',
+    status: 'inactive',
+  },
+  {
+    id: 'w-8',
+    name: 'Sofia Ramirez',
+    role: 'Carpenter',
+    phone: '+63 917 555 0108',
+    status: 'active',
+  },
+]
 
 export const complianceBenchmark = {
   highCompliance: 85,
@@ -55,6 +117,99 @@ export const recentSnapshots = Array.from({ length: 12 }, (_, i) => ({
   time: i % 3 === 0 ? '09:00 AM' : i % 3 === 1 ? '11:30 AM' : '02:15 PM',
   violationCount: i % 3 === 0 ? 12 : i % 5 === 0 ? 3 : 0,
 }))
+
+function toSessionSnapshots(
+  items: typeof recentSnapshots,
+  prefix: string,
+): SnapshotRecord[] {
+  return items.map((row) => ({
+    id: `${prefix}-${row.id}`,
+    snapshotId: row.snapshotId,
+    previewUrl: row.previewUrl,
+    date: row.date,
+    time: row.time,
+    violationCount: row.violationCount,
+    status: row.violationCount > 0 ? 'non_compliant' : 'compliant',
+  }))
+}
+
+/** Dense demo list so session rail pagination (incl. ellipsis) is visible */
+function buildFilledSessionSnapshots(
+  prefix: string,
+  count: number,
+): SnapshotRecord[] {
+  const times = ['07:15 AM', '09:00 AM', '11:30 AM', '02:15 PM', '04:45 PM']
+  return Array.from({ length: count }, (_, i) => {
+    const violationCount = i % 4 === 0 ? 12 : i % 3 === 0 ? 3 : 0
+    return {
+      id: `${prefix}-fill-${i + 1}`,
+      snapshotId: `SSID-1216-${4200 + i}`,
+      previewUrl: snapshotPreviews[i % snapshotPreviews.length],
+      date: i % 2 === 0 ? 'December 12, 2026' : 'December 11, 2026',
+      time: times[i % times.length],
+      violationCount,
+      status: (violationCount > 0 ? 'non_compliant' : 'compliant') as SnapshotRecord['status'],
+    }
+  })
+}
+
+/** Seed history of past toolbox sessions for Records */
+export const mockToolboxSessions: ToolboxSessionRecord[] = [
+  {
+    id: 'tb-seed-1',
+    dateOfApplication: '09-16-2026',
+    timeOfApplication: '07:30 AM',
+    permitReceiver: 'Admin',
+    contractorCompanyName: 'Mata Builders Co.',
+    siteAddressName: siteInfo.address,
+    workers: [
+      { id: 'tw-s1-1', name: 'Juan Dela Cruz', position: 'Foreman' },
+      { id: 'tw-s1-2', name: 'Maria Santos', position: 'Welder' },
+      { id: 'tw-s1-3', name: 'Pedro Reyes', position: 'Mason' },
+    ],
+    workType: 'ground',
+    requiredPpe: ['Helmet', 'High Visibility Suit', 'Boots', 'Gloves'],
+    createdAt: '2026-09-16T07:30:00.000Z',
+    endedAt: '2026-09-16T16:00:00.000Z',
+    snapshots: buildFilledSessionSnapshots('tb1', 48),
+  },
+  {
+    id: 'tb-seed-2',
+    dateOfApplication: '09-15-2026',
+    timeOfApplication: '08:00 AM',
+    permitReceiver: 'Admin',
+    contractorCompanyName: 'Arboreal Care PH',
+    siteAddressName: siteInfo.address,
+    workers: [
+      { id: 'tw-s2-1', name: 'Ana Villanueva', position: 'Climber' },
+      { id: 'tw-s2-2', name: 'Carlos Mendoza', position: 'Ground support' },
+    ],
+    workType: 'arboreal',
+    requiredPpe: ['Helmet', 'Harness', 'Safety Glasses', 'Boots'],
+    createdAt: '2026-09-15T08:00:00.000Z',
+    endedAt: '2026-09-15T15:30:00.000Z',
+    snapshots: toSessionSnapshots(recentSnapshots.slice(2, 8), 'tb2'),
+  },
+  {
+    id: 'tb-seed-3',
+    dateOfApplication: '09-12-2026',
+    timeOfApplication: '06:45 AM',
+    permitReceiver: 'Site Engineer',
+    contractorCompanyName: 'Davao Site Services',
+    siteAddressName: siteInfo.address,
+    workers: [
+      { id: 'tw-s3-1', name: 'Lisa Garcia', position: 'Safety Steward' },
+      { id: 'tw-s3-2', name: 'Roberto Lim', position: 'Laborer' },
+      { id: 'tw-s3-3', name: 'Juan Dela Cruz', position: 'Foreman' },
+      { id: 'tw-s3-4', name: 'Maria Santos', position: 'Welder' },
+    ],
+    workType: 'ground',
+    requiredPpe: ['Helmet', 'Gloves', 'High Visibility Suit', 'Boots', 'Safety Glasses'],
+    createdAt: '2026-09-12T06:45:00.000Z',
+    endedAt: '2026-09-12T17:00:00.000Z',
+    snapshots: toSessionSnapshots(recentSnapshots.slice(4, 10), 'tb3'),
+  },
+]
 
 /** Shared records pool for list / grid views */
 export const snapshots: SnapshotRecord[] = Array.from({ length: 48 }, (_, i) => {
@@ -390,6 +545,28 @@ export function getSnapshotDetail(id: string): SnapshotDetail | null {
       },
       fallbackPeople(status === 'non_compliant'),
     )
+  }
+
+  // Session-scoped ids look like `tb-…-recent-3` or `tb1-recent-3`
+  const recentKey = id.match(/(recent-\d+)$/)?.[1]
+  if (recentKey) {
+    const nested = recentSnapshots.find((s) => s.id === recentKey)
+    if (nested) {
+      const status =
+        nested.violationCount > 0 ? 'non_compliant' : 'compliant'
+      return buildDetailFromRecord(
+        {
+          id,
+          snapshotId: nested.snapshotId,
+          previewUrl: nested.previewUrl,
+          date: nested.date,
+          time: nested.time,
+          violationCount: nested.violationCount,
+          status,
+        },
+        fallbackPeople(status === 'non_compliant'),
+      )
+    }
   }
 
   return null

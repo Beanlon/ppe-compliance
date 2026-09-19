@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   ChevronDown,
   ClipboardList,
+  ClipboardPlus,
   Info,
   LogOut,
   Video,
@@ -14,6 +15,7 @@ import { useAuth } from '@/context/AuthContext'
 
 const homeLinks = [
   { to: '/', label: 'Live Feed', icon: Video, end: true },
+  { to: '/toolbox', label: 'Toolbox', icon: ClipboardPlus },
   { to: '/records', label: 'Records', icon: ClipboardList },
 ]
 
@@ -44,7 +46,7 @@ export function Sidebar({ open, onClose, onShowTutorial }: SidebarProps) {
   return (
     <>
       {/* Desktop: always visible, width scales down with the viewport */}
-      <aside className="@container/nav sticky top-0 hidden h-screen w-[clamp(13.5rem,16vw,17.5rem)] shrink-0 flex-col overflow-y-auto bg-sidebar px-[clamp(0.75rem,1.2vw,1.25rem)] py-[clamp(1rem,1.5vw,1.5rem)] text-white lg:flex">
+      <aside className="@container/nav sticky top-0 hidden h-full w-[clamp(13.5rem,16vw,17.5rem)] shrink-0 flex-col overflow-y-auto bg-sidebar px-[clamp(0.75rem,1.2vw,1.25rem)] py-[clamp(1rem,1.5vw,1.5rem)] text-white lg:flex">
         <div className="mb-[clamp(1rem,1.6vw,1.5rem)] border-b border-white/25 pb-[clamp(1rem,1.6vw,1.5rem)]">
           <GearSightLogo
             variant="onDark"
