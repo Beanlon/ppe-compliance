@@ -1,5 +1,5 @@
 interface GearSightLogoProps {
-  /** `onDark` = white marks for sidebar; `onLight` = dark marks for light backgrounds */
+  /** `onDark` = white marks for dark backgrounds; `onLight` = dark marks for light backgrounds */
   variant?: 'onDark' | 'onLight'
   className?: string
 }

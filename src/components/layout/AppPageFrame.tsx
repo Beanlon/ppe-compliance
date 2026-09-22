@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
  * Fills the AppLayout main pane. Prefer flex-1 over h-full so height
  * resolves reliably inside the flex shell.
  */
-const FRAME_CLASS = 'flex min-h-0 flex-1 flex-col bg-white'
+const FRAME_CLASS = 'flex min-h-0 min-w-0 flex-1 flex-col bg-white'
 
 /** Compact inner spacing for header / form pages */
 const PAD_CLASS =

@@ -52,9 +52,9 @@ export function ToolboxSessionPage() {
 
   return (
     <AppPageFrame>
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
-          <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-gray-200 px-2.5 py-2 sm:px-3 sm:py-2.5">
+      <div className="flex flex-col lg:flex-row lg:items-start">
+        <div className="min-w-0 flex-1">
+          <header className="flex flex-wrap items-center gap-2 border-b border-gray-200 px-2.5 py-2 sm:px-3 sm:py-2.5">
             <button
               type="button"
               onClick={() => navigate('/records')}
@@ -180,7 +180,7 @@ export function ToolboxSessionPage() {
           </section>
         </div>
 
-        <aside className="@container/snapshots flex min-h-[16rem] w-full shrink-0 flex-col border-t border-gray-200 lg:min-h-0 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
+        <aside className="@container/snapshots w-full shrink-0 border-t border-gray-200 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
           <SessionSnapshotsPanel snapshots={session.snapshots} />
         </aside>
       </div>
@@ -233,7 +233,7 @@ function SessionSnapshotsPanel({ snapshots }: { snapshots: SnapshotRecord[] }) {
       </div>
 
       {snapshots.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center px-4 py-10">
+        <div className="flex flex-col items-center justify-center px-4 py-10">
           <ClipboardList className="h-8 w-8 text-gray-300" strokeWidth={1.75} />
           <p className="mt-3 text-center text-sm font-semibold text-ink">
             No snapshots yet
@@ -255,8 +255,8 @@ function SessionSnapshotsPanel({ snapshots }: { snapshots: SnapshotRecord[] }) {
             </ul>
           </div>
 
-          {/* Desktop rail: up to 10 per page, scroll within the page */}
-          <ul className="scrollbar-hidden hidden min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-2 @[16rem]/snapshots:space-y-3 @[16rem]/snapshots:p-3 lg:block">
+          {/* Desktop rail: up to 10 per page */}
+          <ul className="hidden space-y-2 p-2 @[16rem]/snapshots:space-y-3 @[16rem]/snapshots:p-3 lg:block">
             {pageRows.map((row) => (
               <li key={row.id}>
                 <SnapshotCard row={row} layout="row" />
@@ -265,7 +265,7 @@ function SessionSnapshotsPanel({ snapshots }: { snapshots: SnapshotRecord[] }) {
           </ul>
 
           {needsPagination ? (
-            <div className="shrink-0 border-t border-gray-200 px-2 py-2.5 sm:px-3">
+            <div className="border-t border-gray-200 px-2 py-2.5 sm:px-3">
               <p className="mb-2 text-xs text-muted">
                 Showing {from}–{to} of {snapshots.length}
               </p>

@@ -63,10 +63,10 @@ export function SnapshotPage() {
 
   return (
     <AppPageFrame>
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
-            <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-gray-200 px-2.5 py-2 sm:px-3 sm:py-2.5">
+      <div className="flex flex-col">
+        <div className="flex flex-col lg:flex-row lg:items-start">
+          <div className="min-w-0 flex-1">
+            <header className="flex flex-wrap items-center gap-2 border-b border-gray-200 px-2.5 py-2 sm:px-3 sm:py-2.5">
               <button
                 type="button"
                 onClick={() => navigate(-1)}
@@ -100,7 +100,7 @@ export function SnapshotPage() {
               onSelectPerson={setSelectedPersonId}
             />
 
-            <section className="shrink-0 border-t border-gray-200 px-2.5 py-2.5 sm:px-3 sm:py-3">
+            <section className="border-t border-gray-200 px-2.5 py-2.5 sm:px-3 sm:py-3">
               <h2 className="text-sm font-bold text-ink sm:text-base">
                 Detection legend
               </h2>
@@ -111,7 +111,7 @@ export function SnapshotPage() {
             </section>
           </div>
 
-          <aside className="@container/detections flex min-h-[16rem] w-full shrink-0 flex-col self-stretch border-t border-gray-200 lg:min-h-0 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
+          <aside className="@container/detections w-full shrink-0 border-t border-gray-200 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
             <DetectionSidebar
               detail={detail}
               selectedPersonId={selectedPersonId}

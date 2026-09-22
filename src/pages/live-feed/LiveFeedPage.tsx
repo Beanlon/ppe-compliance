@@ -24,8 +24,8 @@ export function LiveFeedPage() {
 
   return (
     <AppPageFrame>
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
+      <div className="flex flex-col lg:flex-row lg:items-start">
+        <div className="min-w-0 flex-1">
           <LiveFeedCard active={hasToolbox} />
           {hasToolbox ? (
             <>
@@ -54,11 +54,11 @@ export function LiveFeedPage() {
           )}
         </div>
 
-        <aside className="@container/snapshots flex min-h-[16rem] w-full shrink-0 flex-col border-t border-gray-200 lg:min-h-0 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
+        <aside className="@container/snapshots w-full shrink-0 border-t border-gray-200 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
           {hasToolbox ? (
             <RecentSnapshotsCard />
           ) : (
-            <div className="flex flex-1 items-center justify-center bg-white px-4 py-10">
+            <div className="flex items-center justify-center bg-white px-4 py-10">
               <p className="text-center text-sm text-muted">
                 Recent snapshots appear after a toolbox talk is on record.
               </p>

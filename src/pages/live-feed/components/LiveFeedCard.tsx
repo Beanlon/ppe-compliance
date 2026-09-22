@@ -17,7 +17,7 @@ type LiveFeedCardProps = {
 export function LiveFeedCard({ active = true }: LiveFeedCardProps) {
   if (!active) {
     return (
-      <div className="relative aspect-video w-full overflow-hidden border-b border-gray-100 bg-white">
+      <div className="relative aspect-video w-full shrink-0 overflow-hidden border-b border-gray-100 bg-white">
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
           <p className="text-sm font-semibold text-gray-400">No live feed</p>
           <p className="mt-1 text-xs text-gray-300">
@@ -29,7 +29,7 @@ export function LiveFeedCard({ active = true }: LiveFeedCardProps) {
   }
 
   return (
-    <div className="relative aspect-video w-full overflow-hidden bg-[#1a1a1a]">
+    <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-[#1a1a1a]">
       <img
         src={siteInfo.liveFeedUrl}
         alt="Live site feed"
