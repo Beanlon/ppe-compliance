@@ -22,7 +22,7 @@ export function SnapshotAnnotatedImage({
   onSelectPerson,
 }: SnapshotAnnotatedImageProps) {
   return (
-    <div className="relative aspect-video w-full overflow-hidden bg-[#1a1a1a]">
+    <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-[#1a1a1a]">
       <img
         src={detail.imageUrl}
         alt={`Snapshot ${detail.snapshotId}`}

@@ -1,4 +1,4 @@
-import { CheckCircle2, UserRound, XCircle } from 'lucide-react'
+import { CheckCircle2, Flag, UserRound, XCircle } from 'lucide-react'
 import { describePpeGap } from '@/data/mock'
 import type { PersonDetection, PpeDetection, SnapshotDetail } from '@/types'
 
@@ -6,19 +6,23 @@ interface DetectionSidebarProps {
   detail: SnapshotDetail
   selectedPersonId: string | null
   onSelectPerson: (personId: string) => void
+  onReportPerson?: (person: PersonDetection) => void
+  reportedPersonIds?: Set<string>
 }
 
 export function DetectionSidebar({
   detail,
   selectedPersonId,
   onSelectPerson,
+  onReportPerson,
+  reportedPersonIds,
 }: DetectionSidebarProps) {
   const selected =
     detail.people.find((p) => p.id === selectedPersonId) ?? detail.people[0]
 
   return (
-    <section className="flex min-h-0 w-full flex-1 flex-col bg-white">
-      <div className="shrink-0 border-b border-gray-200 px-2.5 py-2 @[16rem]/detections:px-3 @[16rem]/detections:py-2.5">
+    <section className="flex w-full flex-col bg-white">
+      <div className="border-b border-gray-200 px-2.5 py-2 @[16rem]/detections:px-3 @[16rem]/detections:py-2.5">
         <h2 className="truncate text-sm font-bold text-ink sm:text-base">
           Detections
         </h2>
@@ -30,7 +34,7 @@ export function DetectionSidebar({
         </p>
       </div>
 
-      <div className="scrollbar-hidden flex shrink-0 gap-1.5 overflow-x-auto border-b border-gray-200 px-2 py-2 @[16rem]/detections:px-2.5">
+      <div className="scrollbar-hidden flex gap-1.5 overflow-x-auto border-b border-gray-200 px-2 py-2 @[16rem]/detections:px-2.5">
         {detail.people.map((person) => {
           const active = person.id === selected?.id
           return (
@@ -52,7 +56,12 @@ export function DetectionSidebar({
       </div>
 
       {selected ? (
-        <PersonDetail person={selected} requiredPpe={detail.requiredPpe} />
+        <PersonDetail
+          person={selected}
+          requiredPpe={detail.requiredPpe}
+          reported={reportedPersonIds?.has(selected.id) ?? false}
+          onReport={onReportPerson ? () => onReportPerson(selected) : undefined}
+        />
       ) : (
         <p className="p-2.5 text-sm text-muted">No people detected in this snapshot.</p>
       )}
@@ -63,15 +72,20 @@ export function DetectionSidebar({
 function PersonDetail({
   person,
   requiredPpe,
+  onReport,
+  reported,
 }: {
   person: PersonDetection
   requiredPpe: string[]
+  onReport?: () => void
+  reported: boolean
 }) {
   const detected = person.ppe.filter((p) => isFullyDetected(p))
   const gaps = person.ppe.filter((p) => !isFullyDetected(p))
+  const compliant = person.status === 'compliant'
 
   return (
-    <div className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto p-2.5 @[16rem]/detections:p-3">
+    <div className="p-2.5 @[16rem]/detections:p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h3 className="text-base font-bold text-ink @[16rem]/detections:text-lg">
@@ -83,6 +97,34 @@ function PersonDetail({
         </div>
         <StatusPill status={person.status} />
       </div>
+
+      {onReport ? (
+        <button
+          type="button"
+          onClick={onReport}
+          disabled={compliant || reported}
+          title={
+            compliant
+              ? 'Compliant detections cannot be reported'
+              : reported
+                ? 'Already reported'
+                : 'Report this PPE detection'
+          }
+          className={`mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+            compliant || reported
+              ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+              : 'border-gray-200 bg-white text-ink hover:bg-gray-50'
+          }`}
+        >
+          <Flag
+            className={`h-4 w-4 ${
+              compliant || reported ? 'text-gray-400' : 'text-accent'
+            }`}
+            strokeWidth={2.25}
+          />
+          {reported ? 'Reported' : 'Report'}
+        </button>
+      ) : null}
 
       <section className="mt-3 border-t border-gray-200 pt-2.5">
         <h4 className="text-xs font-bold uppercase tracking-wide text-ink">
