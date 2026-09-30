@@ -13,6 +13,7 @@ import {
   mockToolboxSessions,
 } from '@/data/mock'
 import type {
+  CameraSource,
   SnapshotRecord,
   ToolboxSessionRecord,
   ToolboxWorkerEntry,
@@ -23,6 +24,8 @@ import type {
 const TOOLBOX_KEY = 'gearsight.toolbox'
 const SESSIONS_KEY = 'gearsight.toolboxSessions.v2'
 const REPORTS_KEY = 'gearsight.workerReports'
+/** localStorage so the choice survives app restarts */
+const LAST_CAMERA_KEY = 'gearsight.lastCamera'
 
 export type RecentSnapshotItem = {
   id: string
@@ -42,6 +45,7 @@ interface CreateToolboxInput {
   workers: ToolboxWorkerEntry[]
   workType: WorkType
   requiredPpe: string[]
+  camera: CameraSource | null
 }
 
 interface ReportDetectionInput {
@@ -63,7 +67,11 @@ interface SiteContextValue {
   /** All toolbox sessions (active first, then history) for Records */
   toolboxSessions: ToolboxSessionRecord[]
   reports: WorkerReport[]
+  /** Camera used most recently on this machine; pre-selects the toolbox form */
+  lastCamera: CameraSource | null
   createToolbox: (input: CreateToolboxInput) => ToolboxSessionRecord
+  /** Switch the camera for the active toolbox session */
+  setToolboxCamera: (camera: CameraSource) => void
   clearToolbox: () => void
   getToolboxSession: (id: string) => ToolboxSessionRecord | null
   reportDetection: (input: ReportDetectionInput) => WorkerReport
@@ -94,6 +102,27 @@ function writeJson(key: string, value: unknown) {
     sessionStorage.setItem(key, JSON.stringify(value))
   } catch {
     // Ignore quota / private-mode failures — in-memory state still works
+  }
+}
+
+function readLastCamera(): CameraSource | null {
+  try {
+    const raw = localStorage.getItem(LAST_CAMERA_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<CameraSource>
+    return parsed.deviceId && parsed.label
+      ? { deviceId: parsed.deviceId, label: parsed.label }
+      : null
+  } catch {
+    return null
+  }
+}
+
+function writeLastCamera(camera: CameraSource) {
+  try {
+    localStorage.setItem(LAST_CAMERA_KEY, JSON.stringify(camera))
+  } catch {
+    // Ignore quota / private-mode failures
   }
 }
 
@@ -148,6 +177,14 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   const [reports, setReports] = useState<WorkerReport[]>(
     () => readJson<WorkerReport[]>(REPORTS_KEY) ?? [],
   )
+  const [lastCamera, setLastCamera] = useState<CameraSource | null>(
+    readLastCamera,
+  )
+
+  const rememberCamera = useCallback((camera: CameraSource) => {
+    setLastCamera(camera)
+    writeLastCamera(camera)
+  }, [])
 
   const recentSnapshots = useMemo<RecentSnapshotItem[]>(
     () =>
@@ -181,11 +218,13 @@ export function SiteProvider({ children }: { children: ReactNode }) {
         .filter((w) => w.name && w.position),
       workType: input.workType,
       requiredPpe: input.requiredPpe,
+      ...(input.camera ? { camera: input.camera } : {}),
       createdAt: new Date().toISOString(),
       endedAt: null,
       // Demo: attach sample snapshots so Live Feed / session detail have content
       snapshots: demoSnapshotsForSession(id),
     }
+    if (input.camera) rememberCamera(input.camera)
     setToolbox(next)
     writeJson(TOOLBOX_KEY, next)
     setToolboxSessions((prev) => {
@@ -194,7 +233,23 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       return updated
     })
     return next
-  }, [])
+  }, [rememberCamera])
+
+  const setToolboxCamera = useCallback(
+    (camera: CameraSource) => {
+      if (!toolbox) return
+      const next: ToolboxSessionRecord = { ...toolbox, camera }
+      rememberCamera(camera)
+      setToolbox(next)
+      writeJson(TOOLBOX_KEY, next)
+      setToolboxSessions((prev) => {
+        const updated = prev.map((s) => (s.id === next.id ? next : s))
+        writeJson(SESSIONS_KEY, updated)
+        return updated
+      })
+    },
+    [toolbox, rememberCamera],
+  )
 
   const clearToolbox = useCallback(() => {
     setToolbox((current) => {
@@ -248,7 +303,9 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       hasToolbox: Boolean(toolbox),
       toolboxSessions,
       reports,
+      lastCamera,
       createToolbox,
+      setToolboxCamera,
       clearToolbox,
       getToolboxSession,
       reportDetection,
@@ -259,7 +316,9 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       toolbox,
       toolboxSessions,
       reports,
+      lastCamera,
       createToolbox,
+      setToolboxCamera,
       clearToolbox,
       getToolboxSession,
       reportDetection,

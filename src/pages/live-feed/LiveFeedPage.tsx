@@ -24,7 +24,7 @@ export function LiveFeedPage() {
 
   return (
     <AppPageFrame>
-      <div className="flex flex-col lg:flex-row lg:items-start">
+      <div className="flex flex-1 flex-col lg:flex-row">
         <div className="min-w-0 flex-1">
           <LiveFeedCard active={hasToolbox} />
           {hasToolbox ? (

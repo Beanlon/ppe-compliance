@@ -21,8 +21,6 @@ export const siteInfo = {
   address: 'A.M. Mata Compound Maligaya Avenue Matina Davao City',
   currentDate: 'December 02, 2026',
   currentTime: '09:00 AM',
-  liveFeedUrl:
-    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1400&q=80',
   cameraLabel: 'Iriun Webcam',
 }
 

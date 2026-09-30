@@ -9,7 +9,6 @@ import {
   MapPin,
   RefreshCw,
   Shield,
-  Video,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { GearSightLogo } from '@/components/brand/GearSightLogo'
@@ -18,7 +17,6 @@ import {
   SiteMapPicker,
   type LatLng,
 } from './components/SiteMapPicker'
-import { CameraDevicePicker } from './components/CameraDevicePicker'
 
 const STEPS = [
   {
@@ -32,12 +30,6 @@ const STEPS = [
     label: 'Login Credentials',
     description: 'Create the account that manages this site.',
     icon: Shield,
-  },
-  {
-    id: 3,
-    label: 'Camera Setup',
-    description: 'Connect a camera from this machine.',
-    icon: Video,
   },
 ] as const
 
@@ -67,9 +59,6 @@ export function SignUpPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  const [selectedCameraId, setSelectedCameraId] = useState('')
-  const [selectedCameraLabel, setSelectedCameraLabel] = useState('')
-
   const current = STEPS.find((s) => s.id === step) ?? STEPS[0]
 
   if (isAuthenticated) {
@@ -80,12 +69,6 @@ export function SignUpPage() {
     const next = step + dir
     if (next < 1 || next > STEPS.length) return
     if (dir === 1 && step === STEPS.length) {
-      if (selectedCameraLabel) {
-        sessionStorage.setItem('gearsight.cameraLabel', selectedCameraLabel)
-      }
-      if (selectedCameraId) {
-        sessionStorage.setItem('gearsight.cameraId', selectedCameraId)
-      }
       login(email || 'account@gmail.com', 'safety_officer')
       navigate('/')
       return
@@ -119,8 +102,8 @@ export function SignUpPage() {
             Set up your monitored project
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-base">
-            Three quick steps to pin the site, create access, and connect a
-            live camera feed.
+            Two quick steps to pin the site and create access. You’ll pick a
+            camera when you start your first toolbox talk.
           </p>
         </div>
 
@@ -240,15 +223,6 @@ export function SignUpPage() {
                 onRegenId={() => setProjectId(makeProjectId())}
                 onPassword={setPassword}
                 onTogglePassword={() => setShowPassword((v) => !v)}
-              />
-            )}
-            {step === 3 && (
-              <CameraDevicePicker
-                selectedDeviceId={selectedCameraId}
-                onSelect={(deviceId, label) => {
-                  setSelectedCameraId(deviceId)
-                  setSelectedCameraLabel(label)
-                }}
               />
             )}
           </div>

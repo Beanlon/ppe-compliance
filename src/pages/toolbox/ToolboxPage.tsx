@@ -11,8 +11,9 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { AppPageFrame } from '@/components/layout/AppPageFrame'
 import { useAuth } from '@/context/AuthContext'
 import { useSite } from '@/context/SiteContext'
+import { CameraSelectField } from '@/components/camera/CameraSelectField'
 import { siteInfo } from '@/data/mock'
-import type { ToolboxWorkerEntry, WorkType } from '@/types'
+import type { CameraSource, ToolboxWorkerEntry, WorkType } from '@/types'
 
 const inputClass =
   'w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-navy focus:ring-[3px] focus:ring-navy/15'
@@ -56,8 +57,14 @@ function newWorkerRow(): ToolboxWorkerEntry {
 export function ToolboxPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { toolbox, hasToolbox, createToolbox, clearToolbox, projectName } =
-    useSite()
+  const {
+    toolbox,
+    hasToolbox,
+    createToolbox,
+    clearToolbox,
+    projectName,
+    lastCamera,
+  } = useSite()
 
   const permitReceiver = user?.name ?? 'Admin'
   const dateOfApplication = useMemo(() => formatDateMMDDYYYY(), [])
@@ -74,6 +81,7 @@ export function ToolboxPage() {
     'High Visibility Suit',
     'Boots',
   ])
+  const [camera, setCamera] = useState<CameraSource | null>(lastCamera)
 
   const filledWorkers = useMemo(
     () => workers.filter((w) => w.name.trim() && w.position.trim()),
@@ -131,6 +139,7 @@ export function ToolboxPage() {
       workers: filledWorkers,
       workType,
       requiredPpe,
+      camera,
     })
     navigate('/')
   }
@@ -187,6 +196,9 @@ export function ToolboxPage() {
             </SummaryItem>
             <SummaryItem label="Workers">
               {toolbox.workers.length} listed
+            </SummaryItem>
+            <SummaryItem label="Camera">
+              {toolbox.camera?.label ?? 'Not selected'}
             </SummaryItem>
           </dl>
 
@@ -443,6 +455,21 @@ export function ToolboxPage() {
               )
             })}
           </ul>
+        </fieldset>
+
+        <fieldset className="mt-5">
+          <legend className="text-sm font-bold text-ink">Camera</legend>
+          <p className="mt-1 text-sm text-muted">
+            Choose the camera that will monitor this session. You can switch
+            cameras later from Live Feed.
+          </p>
+          <div className="mt-3">
+            <CameraSelectField
+              id="tb-camera"
+              value={camera}
+              onChange={setCamera}
+            />
+          </div>
         </fieldset>
 
         <div className="mt-6 flex flex-wrap gap-2">
