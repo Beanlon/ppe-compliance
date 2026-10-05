@@ -22,7 +22,7 @@ const STEPS = [
   {
     id: 1,
     label: 'Site Information',
-    description: 'Pin the project site on the map.',
+    description: 'Search, drop a pin, or use your current location.',
     icon: MapPin,
   },
   {
@@ -195,12 +195,18 @@ export function SignUpPage() {
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
-          <p className="mb-5 max-w-2xl shrink-0 text-sm text-[#6b7280] sm:text-base">
-            {current.description}
-          </p>
+        <div
+          className={`flex min-h-0 flex-1 flex-col px-5 py-5 sm:px-8 sm:py-6 ${
+            step === 1 ? 'overflow-hidden' : 'overflow-y-auto'
+          }`}
+        >
+          {step === 2 && (
+            <p className="mb-5 max-w-2xl shrink-0 text-sm text-[#6b7280] sm:text-base">
+              {current.description}
+            </p>
+          )}
 
-          <div className="min-h-0 flex-1">
+          <div className="flex min-h-0 flex-1 flex-col">
             {step === 1 && (
               <SiteInformationStep
                 address={address}
@@ -273,24 +279,13 @@ function SiteInformationStep({
   onAddress: (address: string) => void
 }) {
   return (
-    <div className="grid h-full min-h-[520px] grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-5">
-      <div className="min-h-[420px] lg:col-span-3 lg:min-h-0">
-        <SiteMapPicker
-          position={mapPosition}
-          address={address}
-          onPositionChange={onMapPosition}
-          onAddressChange={onAddress}
-          className="h-full min-h-[420px] lg:min-h-0"
-        />
-      </div>
-
-      <div className="flex flex-col rounded-2xl border border-[#e5e7eb] bg-white p-4 shadow-sm lg:col-span-1 lg:self-stretch">
-        <h3 className="text-base font-bold text-ink sm:text-lg">Address</h3>
-        <p className="mt-2 text-sm leading-relaxed text-[#4b5563] sm:text-base">
-          {address}
-        </p>
-      </div>
-    </div>
+    <SiteMapPicker
+      position={mapPosition}
+      address={address}
+      onPositionChange={onMapPosition}
+      onAddressChange={onAddress}
+      className="min-h-[70vh] flex-1 lg:min-h-0"
+    />
   )
 }
 
