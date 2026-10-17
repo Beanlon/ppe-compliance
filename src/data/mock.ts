@@ -19,6 +19,9 @@ export const siteInfo = {
   name: 'A.M. Mata Compound',
   projectId: 'PRJ-2026-AMT',
   address: 'A.M. Mata Compound Maligaya Avenue Matina Davao City',
+  /** Registered project pin (Matina / Ma-a, Davao City) — phone GPS is checked against this */
+  lat: 7.0635,
+  lng: 125.5802,
   currentDate: 'December 02, 2026',
   currentTime: '09:00 AM',
   cameraLabel: 'Iriun Webcam',

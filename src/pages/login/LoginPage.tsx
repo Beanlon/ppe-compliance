@@ -1,26 +1,70 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, FolderKanban, LockKeyhole, Mail } from 'lucide-react'
+import {
+  Eye,
+  EyeOff,
+  FolderKanban,
+  Loader2,
+  LockKeyhole,
+  Mail,
+} from 'lucide-react'
 import { GearSightLogo } from '@/components/brand/GearSightLogo'
 import { useAuth } from '@/context/AuthContext'
+import { siteInfo } from '@/data/mock'
 
 export function LoginPage() {
-  const { isAuthenticated, login } = useAuth()
+  const { isAuthenticated, pendingLogin, startSiteVerification } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('account@gmail.com')
-  const [projectId, setProjectId] = useState('')
+  const [projectId, setProjectId] = useState(siteInfo.projectId)
   const [passcode, setPasscode] = useState('')
   const [showPasscode, setShowPasscode] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />
   }
 
-  function onSubmit(e: FormEvent) {
-    e.preventDefault()
-    login(email, 'safety_officer')
-    navigate('/')
+  if (pendingLogin) {
+    return <Navigate to="/login/verify" replace />
   }
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault()
+    setSubmitting(true)
+    setError('')
+    try {
+      // Feasibility prototype: any non-empty passcode is accepted.
+      if (!passcode.trim()) {
+        setError('Enter your passcode')
+        return
+      }
+      await startSiteVerification(
+        email,
+        'safety_officer',
+        projectId.trim() || siteInfo.projectId,
+      )
+      navigate('/login/verify')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ''
+      if (/failed to fetch|networkerror|load failed/i.test(message)) {
+        setError(
+          'Could not reach the verify server. Open the app at https://localhost:5173 (not http), accept the certificate warning, then try again.',
+        )
+      } else {
+        setError(
+          message ||
+            'Could not start site verification. Is the Vite server running?',
+        )
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const onHttp =
+    typeof window !== 'undefined' && window.location.protocol === 'http:'
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#161b2b] px-4 py-10 sm:px-6">
@@ -40,19 +84,30 @@ export function LoginPage() {
         />
 
         <form
-          onSubmit={onSubmit}
+          onSubmit={(e) => void onSubmit(e)}
           className="overflow-hidden rounded-3xl bg-white shadow-[0_24px_70px_rgba(0,0,0,0.35)]"
         >
           <div className="h-1.5 bg-gradient-to-r from-navy via-accent to-[#ffb088]" />
 
           <div className="px-6 py-8 sm:px-8 sm:py-9">
-            <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">
+              Step 1 of 4
+            </p>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
               Sign in
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-[#6b7280] sm:text-base">
-              Open your project workspace and pick up PPE monitoring where you
-              left off.
+              After credentials, you will verify on-site with your phone GPS
+              before opening the workspace.
             </p>
+
+            {onHttp ? (
+              <div className="mt-4 rounded-xl border border-[#fcd34d] bg-[#fffbeb] px-3.5 py-3 text-sm text-[#92400e]">
+                You are on <strong>http://</strong>. Site verify needs{' '}
+                <strong>https://localhost:5173</strong> — change the address
+                bar, accept the cert warning, then sign in again.
+              </div>
+            ) : null}
 
             <div className="mt-8 space-y-4">
               <label className="block">
@@ -80,10 +135,11 @@ export function LoginPage() {
                   <FolderKanban className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" />
                   <input
                     type="text"
+                    required
                     autoComplete="off"
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
-                    placeholder="PRJ-0000-ABC"
+                    placeholder="PRJ-2026-AMT"
                     className={`${fieldClass} pl-11`}
                   />
                 </span>
@@ -106,6 +162,7 @@ export function LoginPage() {
                   <input
                     id="passcode"
                     type={showPasscode ? 'text' : 'password'}
+                    required
                     autoComplete="current-password"
                     value={passcode}
                     onChange={(e) => setPasscode(e.target.value)}
@@ -128,11 +185,20 @@ export function LoginPage() {
               </div>
             </div>
 
+            {error ? (
+              <p className="mt-4 text-sm font-medium text-[#b45309]">{error}</p>
+            ) : null}
+
             <button
               type="submit"
-              className="mt-7 inline-flex h-12 w-full items-center justify-center rounded-full bg-navy text-sm font-semibold text-white transition hover:bg-[#24314d] sm:text-base"
+              disabled={submitting}
+              className="mt-7 inline-flex h-12 w-full items-center justify-center rounded-full bg-navy text-sm font-semibold text-white transition hover:bg-[#24314d] disabled:opacity-60 sm:text-base"
             >
-              Log in
+              {submitting ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                'Continue to site check'
+              )}
             </button>
           </div>
         </form>
