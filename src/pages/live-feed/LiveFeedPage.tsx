@@ -24,8 +24,8 @@ export function LiveFeedPage() {
 
   return (
     <AppPageFrame>
-      <div className="flex flex-1 flex-col lg:flex-row">
-        <div className="min-w-0 flex-1">
+      <div className="flex min-h-full w-full flex-1 flex-col lg:landscape:flex-row">
+        <div className="flex min-w-0 flex-1 flex-col">
           <LiveFeedCard active={hasToolbox} />
           {hasToolbox ? (
             <>
@@ -54,7 +54,7 @@ export function LiveFeedPage() {
           )}
         </div>
 
-        <aside className="@container/snapshots w-full shrink-0 border-t border-gray-200 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
+        <aside className="@container/snapshots w-full min-w-0 shrink-0 border-t border-gray-200 lg:landscape:w-[clamp(11.5rem,28vw,18rem)] lg:landscape:max-w-[40%] lg:landscape:border-l lg:landscape:border-t-0 xl:landscape:w-[300px] xl:landscape:max-w-none 2xl:landscape:w-[360px]">
           {hasToolbox ? (
             <RecentSnapshotsCard />
           ) : (

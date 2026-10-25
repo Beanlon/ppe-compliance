@@ -47,6 +47,12 @@ interface AuthContextValue {
   consumeJustLoggedIn: () => void
 }
 
+/**
+ * Temporary bypass of the phone GPS / QR site check on login.
+ * Set to false to require on-site location verification again.
+ */
+export const SKIP_SITE_VERIFICATION = false
+
 /** Preserve context identity across Vite HMR so hooks don't crash to a white screen */
 const AUTH_CONTEXT_KEY = '__gearsightAuthContext'
 const globalStore = globalThis as unknown as Record<

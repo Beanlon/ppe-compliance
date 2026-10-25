@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
 import { Check, ChevronDown, VideoOff } from 'lucide-react'
+import { DetectionOverlay } from '@/components/detection/DetectionOverlay'
 import { useSite } from '@/context/SiteContext'
 import { useCameraDevices } from '@/hooks/useCameraDevices'
 import { useCameraStream } from '@/hooks/useCameraStream'
+import { useLiveDetection } from '@/hooks/useLiveDetection'
 import { resolveCamera } from '@/lib/camera'
+import type { FrameDetection } from '@/lib/detectApi'
 import type { CameraSource } from '@/types'
 
 type LiveFeedCardProps = {
@@ -46,6 +49,27 @@ function CameraFeed() {
     error: streamError,
     retry,
   } = useCameraStream(selected?.deviceId ?? null)
+  const live = streamStatus === 'live'
+  const requiredPpe = toolbox?.requiredPpe ?? [
+    'Helmet',
+    'High Visibility Suit',
+    'Boots',
+  ]
+  const {
+    people,
+    detections,
+    status: detectStatus,
+    error: detectError,
+    device: detectDevice,
+    modelName,
+    frame,
+  } = useLiveDetection({
+    enabled: live,
+    videoRef,
+    requiredPpe,
+  })
+  const stageRef = useRef<HTMLDivElement>(null)
+  const frameFit = useContainFit(stageRef, frame)
   const [menuOpen, setMenuOpen] = useState(false)
 
   // Same camera, new device ID (e.g. browser storage was reset)
@@ -59,8 +83,6 @@ function CameraFeed() {
     setMenuOpen(true)
     void refresh()
   }
-
-  const live = streamStatus === 'live'
 
   function chooseCamera(camera: CameraSource) {
     // Re-picking the current camera is the natural way to reconnect it
@@ -101,14 +123,29 @@ function CameraFeed() {
   }
 
   return (
-    <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-[#1a1a1a]">
+    <div
+      ref={stageRef}
+      className="relative aspect-video w-full shrink-0 overflow-hidden bg-[#1a1a1a]"
+    >
       <video
         ref={videoRef}
         muted
         playsInline
         autoPlay
-        className={`absolute inset-0 h-full w-full object-cover ${live ? 'block' : 'hidden'}`}
+        className={
+          live && frame
+            ? 'pointer-events-none absolute h-px w-px opacity-0'
+            : `absolute inset-0 h-full w-full object-contain ${live ? 'block' : 'hidden'}`
+        }
       />
+
+      {live && frame && (
+        <img
+          src={frame.url}
+          alt=""
+          className="absolute inset-0 h-full w-full object-contain"
+        />
+      )}
 
       {!live && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center text-white/70">
@@ -136,10 +173,27 @@ function CameraFeed() {
         </div>
       )}
 
+      {live && frame && frameFit && (
+        <div className="absolute" style={frameFit}>
+          <DetectionOverlay people={people} detections={detections} />
+        </div>
+      )}
+
       {live && (
         <div className="absolute left-3 top-3 inline-flex items-center gap-2 rounded-lg bg-black/55 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wide text-white sm:left-4 sm:top-4 sm:px-3 sm:text-sm">
           <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
           Live
+        </div>
+      )}
+
+      {live && detectStatus !== 'idle' && (
+        <div className="absolute bottom-3 left-3 max-w-[75%] rounded-lg bg-black/55 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-white sm:bottom-4 sm:left-4 sm:text-xs">
+          {detectStatus === 'checking' && 'Checking RT-DETR…'}
+          {detectStatus === 'ready' && `${modelName} ready`}
+          {detectStatus === 'running' &&
+            `${modelName}${detectDevice ? ` · ${detectDevice}` : ''} · ${summarizeDetections(detections)}`}
+          {(detectStatus === 'offline' || detectStatus === 'error') &&
+            (detectError || 'Detector offline')}
         </div>
       )}
 
@@ -154,6 +208,57 @@ function CameraFeed() {
       />
     </div>
   )
+}
+
+/** Letterboxed rectangle for the still that was actually sent to the model. */
+function useContainFit(
+  containerRef: RefObject<HTMLDivElement | null>,
+  frame: { width: number; height: number } | null,
+): CSSProperties | null {
+  const [fit, setFit] = useState<CSSProperties | null>(null)
+  const width = frame?.width ?? 0
+  const height = frame?.height ?? 0
+
+  useEffect(() => {
+    const parent = containerRef.current
+    if (!width || !height || !parent) {
+      setFit(null)
+      return
+    }
+
+    const update = () => {
+      const cw = parent.clientWidth
+      const ch = parent.clientHeight
+      if (!cw || !ch) return
+      const scale = Math.min(cw / width, ch / height)
+      const fittedWidth = width * scale
+      const fittedHeight = height * scale
+      setFit({
+        left: (cw - fittedWidth) / 2,
+        top: (ch - fittedHeight) / 2,
+        width: fittedWidth,
+        height: fittedHeight,
+      })
+    }
+
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(parent)
+    return () => observer.disconnect()
+  }, [containerRef, width, height])
+
+  return fit
+}
+
+function summarizeDetections(detections: FrameDetection[]): string {
+  if (detections.length === 0) return 'no boxes'
+  const counts = new Map<string, number>()
+  for (const detection of detections) {
+    counts.set(detection.class, (counts.get(detection.class) ?? 0) + 1)
+  }
+  return [...counts]
+    .map(([name, count]) => `${name.replaceAll('_', ' ')} ${count}`)
+    .join(', ')
 }
 
 function CameraMenu({

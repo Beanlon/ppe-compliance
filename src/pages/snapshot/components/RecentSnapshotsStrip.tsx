@@ -13,7 +13,7 @@ export function RecentSnapshotsStrip({ currentId }: RecentSnapshotsStripProps) {
   const rows = recentSnapshots.filter((row) => row.id !== currentId).slice(0, 8)
 
   return (
-    <section className="border-t border-gray-200 bg-white">
+    <section className="w-full shrink-0 border-t border-gray-200 bg-white">
       <div className="flex items-center justify-between gap-2 border-b border-gray-200 px-2.5 py-2 sm:px-3 sm:py-2.5">
         <h2 className="text-sm font-bold text-ink sm:text-base">
           Recent Snapshots

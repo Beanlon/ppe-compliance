@@ -1,0 +1,12 @@
+# Training stack. Use Python 3.10–3.13 — not 3.14.
+# Install a CUDA build of torch from https://pytorch.org first, then:
+#   pip install -r requirements.txt
+
+ultralytics>=8.3.0
+rfdetr[train]
+pyyaml
+pillow
+numpy
+pandas
+matplotlib
+seaborn

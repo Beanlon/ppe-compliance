@@ -35,25 +35,13 @@ export function RecentSnapshotsCard() {
           </p>
         </div>
       ) : (
-        <>
-          <div className="scrollbar-hidden overflow-x-auto overscroll-x-contain p-3 lg:hidden">
-            <ul className="flex w-max gap-3">
-              {recentSnapshots.map((row) => (
-                <li key={row.id} className="w-[200px] shrink-0 sm:w-[220px]">
-                  <SnapshotCard row={row} layout="stack" />
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <ul className="hidden space-y-2 p-2 @[16rem]/snapshots:space-y-3 @[16rem]/snapshots:p-3 lg:block">
-            {recentSnapshots.map((row) => (
-              <li key={row.id}>
-                <SnapshotCard row={row} layout="row" />
-              </li>
-            ))}
-          </ul>
-        </>
+        <ul className="flex w-full flex-col gap-2 p-2 @[16rem]/snapshots:gap-3 @[16rem]/snapshots:p-3">
+          {recentSnapshots.map((row) => (
+            <li key={row.id} className="w-full min-w-0">
+              <SnapshotCard row={row} />
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   )
@@ -61,7 +49,6 @@ export function RecentSnapshotsCard() {
 
 function SnapshotCard({
   row,
-  layout,
 }: {
   row: {
     id: string
@@ -71,34 +58,13 @@ function SnapshotCard({
     time: string
     violationCount: number
   }
-  layout: 'row' | 'stack'
 }) {
   const hasViolations = row.violationCount > 0
-
-  if (layout === 'stack') {
-    return (
-      <Link to={`/snapshots/${row.id}`} className="group block">
-        <SnapshotThumb
-          src={row.previewUrl}
-          className="aspect-video w-full rounded-lg"
-        />
-        <div className="mt-2 min-w-0 px-0.5">
-          <p className="truncate text-sm font-bold text-ink group-hover:text-navy">
-            {row.snapshotId}
-          </p>
-          <p className="mt-0.5 truncate text-xs text-muted">
-            {row.date} · {row.time}
-          </p>
-          <StatusChip hasViolations={hasViolations} count={row.violationCount} />
-        </div>
-      </Link>
-    )
-  }
 
   return (
     <Link
       to={`/snapshots/${row.id}`}
-      className="group flex gap-2 @[16rem]/snapshots:gap-3"
+      className="group flex w-full min-w-0 gap-2 @[16rem]/snapshots:gap-3"
     >
       <SnapshotThumb
         src={row.previewUrl}

@@ -66,13 +66,13 @@ export function SignUpPage() {
   }
 
   function go(dir: -1 | 1) {
-    const next = step + dir
-    if (next < 1 || next > STEPS.length) return
     if (dir === 1 && step === STEPS.length) {
       login(email || 'account@gmail.com', 'safety_officer')
       navigate('/')
       return
     }
+    const next = step + dir
+    if (next < 1 || next > STEPS.length) return
     setStep(next)
   }
 

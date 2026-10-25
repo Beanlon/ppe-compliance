@@ -53,13 +53,14 @@ export function RecordsPage() {
 
   return (
     <AppPageFrame padded>
+      <div className="flex min-h-full flex-1 flex-col">
       <PageHeader
         title="Records"
         subtitle="Toolbox sessions and their captured snapshots"
       />
 
       {toolboxSessions.length === 0 ? (
-        <div className="mt-2 flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white px-4 py-16">
+        <div className="mt-2 flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white px-4 py-16">
           <ClipboardList className="h-10 w-10 text-gray-300" strokeWidth={1.75} />
           <p className="mt-4 text-base font-semibold text-ink">No sessions yet</p>
           <p className="mt-1 max-w-sm text-center text-sm text-muted">
@@ -117,6 +118,7 @@ export function RecordsPage() {
           ) : null}
         </>
       )}
+      </div>
     </AppPageFrame>
   )
 }
@@ -243,7 +245,7 @@ function Pagination({
   )
 
   return (
-    <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 pt-4">
+    <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 pt-4">
       <p className="text-sm text-muted">
         Page {page} of {totalPages}
       </p>

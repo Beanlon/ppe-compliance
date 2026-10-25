@@ -9,6 +9,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "detect": "cd detect && .venv\\Scripts\\python.exe -m uvicorn server:app --host 127.0.0.1 --port 8765",
+    "detect:setup": "cd detect && python -m venv .venv && .venv\\Scripts\\python.exe -m pip install -r requirements.txt",
     "electron:dev": "concurrently -n vite,electron -c cyan,magenta \"vite\" \"cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 wait-on https://127.0.0.1:5173 && electron .\"",
     "electron:preview": "npm run build && electron ."
   },

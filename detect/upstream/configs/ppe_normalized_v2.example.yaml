@@ -1,0 +1,15 @@
+# Copy to data/processed/PPE-Normalized-v2/data.yaml after the dataset
+# folder is in place. path must be that dataset folder on the machine
+# that is training, or "." when the working directory is the dataset.
+path: .
+train: images/train
+val: images/val
+nc: 7
+names:
+  0: person
+  1: helmet
+  2: gloves
+  3: high_visibility
+  4: boots
+  5: safety_glasses
+  6: harness
