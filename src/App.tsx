@@ -4,6 +4,8 @@ import { SiteProvider } from '@/context/SiteContext'
 import { AppErrorBoundary } from '@/components/AppErrorBoundary'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoginPage } from '@/pages/login/LoginPage'
+import { LoginVerifyPage } from '@/pages/login/LoginVerifyPage'
+import { PhoneVerifyPage } from '@/pages/verify/PhoneVerifyPage'
 import { SignUpPage } from '@/pages/signup/SignUpPage'
 import { LiveFeedPage } from '@/pages/live-feed/LiveFeedPage'
 import { RecordsPage } from '@/pages/records/RecordsPage'
@@ -20,6 +22,8 @@ export default function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/login/verify" element={<LoginVerifyPage />} />
+              <Route path="/verify/:challengeId" element={<PhoneVerifyPage />} />
               <Route path="/signup" element={<SignUpPage />} />
               <Route element={<AppLayout />}>
                 <Route index element={<LiveFeedPage />} />

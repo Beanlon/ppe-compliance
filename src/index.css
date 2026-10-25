@@ -55,6 +55,15 @@ body {
   z-index: 0;
 }
 
+.leaflet-div-icon.gearsight-pin {
+  background: transparent;
+  border: none;
+}
+
+.site-map-picker .leaflet-control-attribution {
+  margin-bottom: 8px;
+}
+
 /* Tutorial overlay motions */
 @keyframes tutorial-backdrop-in {
   from {

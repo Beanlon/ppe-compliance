@@ -133,6 +133,14 @@ export function ToolboxSessionPage() {
                   {session.permitReceiver}
                 </dd>
               </div>
+              <div>
+                <dt className="text-xs font-bold uppercase tracking-wide text-muted">
+                  Camera
+                </dt>
+                <dd className="mt-0.5 font-semibold text-ink">
+                  {session.camera?.label ?? 'Not recorded'}
+                </dd>
+              </div>
               <div className="sm:col-span-2">
                 <dt className="text-xs font-bold uppercase tracking-wide text-muted">
                   Site address

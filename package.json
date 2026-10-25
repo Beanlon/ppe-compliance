@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "electron:dev": "concurrently -n vite,electron -c cyan,magenta \"vite\" \"wait-on http://127.0.0.1:5173 && electron .\"",
+    "electron:dev": "concurrently -n vite,electron -c cyan,magenta \"vite\" \"cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 wait-on https://127.0.0.1:5173 && electron .\"",
     "electron:preview": "npm run build && electron ."
   },
   "dependencies": {
@@ -26,8 +26,10 @@
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.1.0",
     "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "electron": "^41.0.3",
     "oxlint": "^1.79.0",
     "tailwindcss": "^4.3.3",

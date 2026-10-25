@@ -2,7 +2,12 @@ const { app, BrowserWindow, Menu, shell } = require('electron')
 const path = require('node:path')
 
 const isDev = !app.isPackaged
-const DEV_URL = process.env.VITE_DEV_SERVER_URL || 'http://127.0.0.1:5173'
+const DEV_URL = process.env.VITE_DEV_SERVER_URL || 'https://127.0.0.1:5173'
+
+// Local Vite uses a self-signed cert for phone GPS (secure context)
+if (isDev) {
+  app.commandLine.appendSwitch('ignore-certificate-errors')
+}
 /** Rasterized from public/favicon.svg (GearSight mark). Electron needs PNG/ICO, not SVG. */
 const APP_ICON = path.join(__dirname, 'icon.png')
 

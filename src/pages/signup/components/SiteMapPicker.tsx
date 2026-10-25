@@ -7,7 +7,7 @@ import {
   useMapEvents,
 } from 'react-leaflet'
 import L from 'leaflet'
-import { Loader2, MapPin, Search, X } from 'lucide-react'
+import { Check, Loader2, LocateFixed, MapPin, Search, X } from 'lucide-react'
 import 'leaflet/dist/leaflet.css'
 
 export type LatLng = { lat: number; lng: number }
@@ -22,15 +22,20 @@ export type PlaceSuggestion = {
 const DEFAULT_CENTER: LatLng = { lat: 7.0635, lng: 125.5802 }
 
 const pinIcon = L.divIcon({
-  className: '',
-  html: `<div style="
-    width:18px;height:18px;border-radius:50%;
-    background:#2e3a59;border:3px solid #fff;
-    box-shadow:0 1px 6px rgba(0,0,0,.35);
-  "></div>`,
-  iconSize: [18, 18],
-  iconAnchor: [9, 9],
+  className: 'gearsight-pin',
+  html: `<svg width="34" height="44" viewBox="0 0 34 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M17 43s13-14.2 13-23.2A13 13 0 1 0 4 19.8C4 28.8 17 43 17 43z" fill="#ff6a1a"/>
+    <circle cx="17" cy="18.5" r="5.2" fill="#fff"/>
+  </svg>`,
+  iconSize: [34, 44],
+  iconAnchor: [17, 43],
 })
+
+function formatCoords({ lat, lng }: LatLng) {
+  const latHem = lat >= 0 ? 'N' : 'S'
+  const lngHem = lng >= 0 ? 'E' : 'W'
+  return `${Math.abs(lat).toFixed(5)}° ${latHem}, ${Math.abs(lng).toFixed(5)}° ${lngHem}`
+}
 
 function formatAddress(data: {
   display_name?: string
@@ -134,12 +139,20 @@ function Recenter({
 function InvalidateSize() {
   const map = useMap()
   useEffect(() => {
-    const t = window.setTimeout(() => map.invalidateSize(), 80)
-    const onResize = () => map.invalidateSize()
-    window.addEventListener('resize', onResize)
+    const container = map.getContainer()
+    const refresh = () => map.invalidateSize()
+    refresh()
+    const frame = requestAnimationFrame(refresh)
+    const later = window.setTimeout(refresh, 250)
+    const observer = new ResizeObserver(refresh)
+    observer.observe(container)
+    if (container.parentElement) observer.observe(container.parentElement)
+    window.addEventListener('resize', refresh)
     return () => {
-      window.clearTimeout(t)
-      window.removeEventListener('resize', onResize)
+      cancelAnimationFrame(frame)
+      window.clearTimeout(later)
+      observer.disconnect()
+      window.removeEventListener('resize', refresh)
     }
   }, [map])
   return null
@@ -166,6 +179,8 @@ export function SiteMapPicker({
   const [searching, setSearching] = useState(false)
   const [open, setOpen] = useState(false)
   const [flyZoom, setFlyZoom] = useState<number | undefined>(undefined)
+  const [locating, setLocating] = useState(false)
+  const [locateError, setLocateError] = useState('')
   const requestId = useRef(0)
   const searchId = useRef(0)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -245,13 +260,38 @@ export function SiteMapPicker({
   function pickSuggestion(place: PlaceSuggestion) {
     setOpen(false)
     setSuggestions([])
+    setLocateError('')
     setFlyZoom(17)
     void applyPosition({ lat: place.lat, lng: place.lng }, place.label)
   }
 
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      setLocateError('This browser cannot read your location.')
+      return
+    }
+    setLocating(true)
+    setLocateError('')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setFlyZoom(16)
+        void applyPosition({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        })
+        setLocating(false)
+      },
+      () => {
+        setLocating(false)
+        setLocateError('Location access was blocked. Search or drop a pin instead.')
+      },
+      { enableHighAccuracy: true, timeout: 8000 },
+    )
+  }
+
   return (
     <div
-      className={`flex h-full min-h-[320px] flex-col overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white shadow-sm ${className}`}
+      className={`site-map-picker flex h-full min-h-[320px] flex-col overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white shadow-sm ${className}`}
     >
       {/* Search sits above the map, not over it */}
       <div
@@ -322,6 +362,7 @@ export function SiteMapPicker({
           zoom={16}
           scrollWheelZoom
           className="absolute inset-0 h-full w-full"
+          style={{ height: '100%', width: '100%' }}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -336,6 +377,7 @@ export function SiteMapPicker({
                 const m = e.target as L.Marker
                 const { lat, lng } = m.getLatLng()
                 setFlyZoom(undefined)
+                setLocateError('')
                 void applyPosition({ lat, lng })
               },
             }}
@@ -343,6 +385,7 @@ export function SiteMapPicker({
           <MapClickHandler
             onPick={(pos) => {
               setFlyZoom(undefined)
+              setLocateError('')
               void applyPosition(pos)
             }}
           />
@@ -350,11 +393,52 @@ export function SiteMapPicker({
           <InvalidateSize />
         </MapContainer>
 
-        <p className="pointer-events-none absolute bottom-2 left-3 right-3 z-[500] rounded-md bg-white/90 px-2.5 py-1.5 text-xs font-medium text-[#4b5563] shadow-sm backdrop-blur-sm sm:left-4 sm:right-4 sm:text-sm">
-          {lookingUp
-            ? 'Updating address…'
-            : 'Click the map or drag the pin to set the site location'}
+        <p className="pointer-events-none absolute left-14 top-3 z-[500] rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-[#4b5563] shadow-sm sm:text-sm">
+          Click the map or drag the pin
         </p>
+      </div>
+
+      <div className="flex shrink-0 flex-col gap-3 border-t border-[#e5e7eb] bg-white px-3 py-3 sm:flex-row sm:items-center sm:px-4">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff1e8] text-accent">
+            {lookingUp ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <MapPin className="h-4 w-4" />
+            )}
+          </span>
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-accent">
+              {lookingUp ? 'Updating address' : 'Site location'}
+              {!lookingUp && (
+                <Check className="h-3.5 w-3.5 text-[#16a34a]" strokeWidth={3} />
+              )}
+            </p>
+            <p className="mt-0.5 truncate text-sm font-semibold text-ink sm:text-base">
+              {address}
+            </p>
+            <p className="mt-0.5 font-mono text-xs text-[#6b7280] sm:text-sm">
+              {formatCoords(position)}
+            </p>
+            {locateError && (
+              <p className="mt-1 text-xs text-[#b45309] sm:text-sm">{locateError}</p>
+            )}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={useMyLocation}
+          disabled={locating}
+          className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#d8dce3] px-4 text-sm font-semibold text-ink transition hover:border-navy disabled:cursor-wait disabled:opacity-60"
+        >
+          {locating ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <LocateFixed className="h-4 w-4 text-accent" />
+          )}
+          Use my location
+        </button>
       </div>
     </div>
   )

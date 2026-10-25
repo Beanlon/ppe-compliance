@@ -65,6 +65,12 @@ export interface Worker {
 
 export type WorkType = 'ground' | 'arboreal'
 
+/** A video input on this machine, as reported by the browser */
+export interface CameraSource {
+  deviceId: string
+  label: string
+}
+
 /** Inline crew entry captured on the toolbox / permit form */
 export interface ToolboxWorkerEntry {
   id: string
@@ -86,6 +92,8 @@ export interface ToolboxTalk {
   workType: WorkType
   /** PPE required for this work session */
   requiredPpe: string[]
+  /** Camera monitoring this session; can be switched from Live Feed */
+  camera?: CameraSource
   createdAt: string
 }
 
