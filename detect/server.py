@@ -101,6 +101,63 @@ def center_inside(inner: dict[str, float], outer: dict[str, float]) -> bool:
     )
 
 
+# Person boxes are percent of the frame (0–100). Touching an edge usually
+# means the body is cropped out of view.
+EDGE_MARGIN_PCT = 2.0
+# Standing full-body detections are taller than they are wide.
+MIN_FULL_BODY_ASPECT = 1.35
+
+
+def whole_body_visible(box: dict[str, float]) -> bool:
+    """False when the person looks cropped so PPE cannot be judged fairly."""
+    x = float(box.get("x", 0.0))
+    y = float(box.get("y", 0.0))
+    w = float(box.get("w", 0.0))
+    h = float(box.get("h", 0.0))
+    if w <= 0.0 or h <= 0.0:
+        return False
+
+    left = x <= EDGE_MARGIN_PCT
+    right = x + w >= 100.0 - EDGE_MARGIN_PCT
+    top = y <= EDGE_MARGIN_PCT
+    bottom = y + h >= 100.0 - EDGE_MARGIN_PCT
+
+    # Side crop — torso or limbs are cut off.
+    if left or right:
+        return False
+
+    # Exactly one of top/bottom clipped → head or feet out of frame.
+    # Both clipped usually means the person fills the frame (still usable).
+    if top != bottom:
+        return False
+
+    # Short/wide box with space around it → likely upper body / partial view.
+    if h / w < MIN_FULL_BODY_ASPECT:
+        return False
+
+    return True
+
+
+def person_status(
+    required_count: int, detected_required: int, box: dict[str, float]
+) -> str:
+    """
+    non_compliant  — none of the required PPE detected
+    needs_checking — at least one required PPE detected but not all,
+                     or all detected but the whole body is not in frame
+    compliant      — every required PPE detected and whole body visible
+    """
+    if required_count <= 0:
+        return "compliant"
+    if detected_required <= 0:
+        return "non_compliant"
+    if detected_required < required_count:
+        return "needs_checking"
+    if not whole_body_visible(box):
+        return "needs_checking"
+    return "compliant"
+
+
 def parse_required(raw: str | None) -> list[str]:
     if not raw or not raw.strip():
         return list(DEFAULT_REQUIRED)
@@ -125,14 +182,14 @@ def group_people(
                 assigned[label].append(item)
 
         ppe_rows: list[dict[str, Any]] = []
-        missing = 0
+        detected_required = 0
         for label in required:
             hits = assigned.get(label, [])
             need = REQUIRED_COUNTS.get(label, 1)
             found = len(hits)
             detected = found >= need
-            if not detected:
-                missing += 1
+            if detected:
+                detected_required += 1
             best = max(hits, key=lambda row: row["confidence"], default=None)
             ppe_rows.append(
                 {
@@ -165,7 +222,9 @@ def group_people(
                 "id": f"person-{index}",
                 "label": f"Person {index + 1}",
                 "box": person["box"],
-                "status": "compliant" if missing == 0 else "non_compliant",
+                "status": person_status(
+                    len(required), detected_required, person["box"]
+                ),
                 "ppe": ppe_rows,
             }
         )

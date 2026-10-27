@@ -7,14 +7,28 @@ import { useCameraStream } from '@/hooks/useCameraStream'
 import { useLiveDetection } from '@/hooks/useLiveDetection'
 import { resolveCamera } from '@/lib/camera'
 import type { FrameDetection } from '@/lib/detectApi'
-import type { CameraSource } from '@/types'
+import type { LiveDetectionStatus } from '@/hooks/useLiveDetection'
+import type { CameraSource, PersonDetection } from '@/types'
+
+export type LiveDetectionSnapshot = {
+  detections: FrameDetection[]
+  people: PersonDetection[]
+  status: LiveDetectionStatus
+  error: string
+  modelName: string
+  device: string
+}
 
 type LiveFeedCardProps = {
   /** When false, show a blank white panel instead of the camera feed */
   active?: boolean
+  onLiveDetection?: (snapshot: LiveDetectionSnapshot) => void
 }
 
-export function LiveFeedCard({ active = true }: LiveFeedCardProps) {
+export function LiveFeedCard({
+  active = true,
+  onLiveDetection,
+}: LiveFeedCardProps) {
   if (!active) {
     return (
       <div className="relative aspect-video w-full shrink-0 overflow-hidden border-b border-gray-100 bg-white">
@@ -28,10 +42,14 @@ export function LiveFeedCard({ active = true }: LiveFeedCardProps) {
     )
   }
 
-  return <CameraFeed />
+  return <CameraFeed onLiveDetection={onLiveDetection} />
 }
 
-function CameraFeed() {
+function CameraFeed({
+  onLiveDetection,
+}: {
+  onLiveDetection?: (snapshot: LiveDetectionSnapshot) => void
+}) {
   const { toolbox, setToolboxCamera } = useSite()
   const saved = toolbox?.camera ?? null
   const {
@@ -71,6 +89,25 @@ function CameraFeed() {
   const stageRef = useRef<HTMLDivElement>(null)
   const frameFit = useContainFit(stageRef, frame)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    onLiveDetection?.({
+      detections,
+      people,
+      status: detectStatus,
+      error: detectError,
+      modelName,
+      device: detectDevice,
+    })
+  }, [
+    onLiveDetection,
+    detections,
+    people,
+    detectStatus,
+    detectError,
+    modelName,
+    detectDevice,
+  ])
 
   // Same camera, new device ID (e.g. browser storage was reset)
   useEffect(() => {
