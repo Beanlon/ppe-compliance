@@ -53,10 +53,16 @@ export function AppLayout() {
           className={
             isAbout
               ? 'min-h-0 min-w-0 flex-1 overflow-y-auto bg-white px-3 py-3 sm:px-4 sm:py-4 lg:px-5 lg:py-5 xl:px-8 xl:py-6 2xl:px-10 2xl:py-8'
-              : 'flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-white'
+              : 'relative min-h-0 min-w-0 flex-1 bg-white'
           }
         >
-          <Outlet />
+          {isAbout ? (
+            <Outlet />
+          ) : (
+            <div className="absolute inset-0 overflow-y-auto overflow-x-hidden">
+              <Outlet />
+            </div>
+          )}
         </main>
       </div>
       <Footer />

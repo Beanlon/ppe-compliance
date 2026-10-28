@@ -1,0 +1,7 @@
+# Python 3.10–3.13. Same inference stack as upstream demo (ultralytics RTDETR).
+ultralytics>=8.3.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+pillow>=10.0.0
+numpy>=1.26.0

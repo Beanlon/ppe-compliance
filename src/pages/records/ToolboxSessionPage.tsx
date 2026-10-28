@@ -52,7 +52,7 @@ export function ToolboxSessionPage() {
 
   return (
     <AppPageFrame>
-      <div className="flex flex-col lg:flex-row lg:items-start">
+      <div className="flex min-h-full w-full flex-1 flex-col lg:landscape:flex-row">
         <div className="min-w-0 flex-1">
           <header className="flex flex-wrap items-center gap-2 border-b border-gray-200 px-2.5 py-2 sm:px-3 sm:py-2.5">
             <button
@@ -188,7 +188,7 @@ export function ToolboxSessionPage() {
           </section>
         </div>
 
-        <aside className="@container/snapshots w-full shrink-0 border-t border-gray-200 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
+        <aside className="@container/snapshots w-full min-w-0 shrink-0 border-t border-gray-200 lg:landscape:w-[clamp(11.5rem,28vw,18rem)] lg:landscape:max-w-[40%] lg:landscape:border-l lg:landscape:border-t-0 xl:landscape:w-[300px] xl:landscape:max-w-none 2xl:landscape:w-[360px]">
           <SessionSnapshotsPanel snapshots={session.snapshots} />
         </aside>
       </div>
@@ -252,22 +252,10 @@ function SessionSnapshotsPanel({ snapshots }: { snapshots: SnapshotRecord[] }) {
         </div>
       ) : (
         <>
-          {/* Mobile: horizontal strip — scroll through the current page */}
-          <div className="scrollbar-hidden overflow-x-auto overscroll-x-contain p-3 lg:hidden">
-            <ul className="flex w-max gap-3">
-              {pageRows.map((row) => (
-                <li key={row.id} className="w-[200px] shrink-0 sm:w-[220px]">
-                  <SnapshotCard row={row} layout="stack" />
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Desktop rail: up to 10 per page */}
-          <ul className="hidden space-y-2 p-2 @[16rem]/snapshots:space-y-3 @[16rem]/snapshots:p-3 lg:block">
+          <ul className="flex w-full flex-col gap-2 p-2 @[16rem]/snapshots:gap-3 @[16rem]/snapshots:p-3">
             {pageRows.map((row) => (
-              <li key={row.id}>
-                <SnapshotCard row={row} layout="row" />
+              <li key={row.id} className="w-full min-w-0">
+                <SnapshotCard row={row} />
               </li>
             ))}
           </ul>
@@ -399,39 +387,13 @@ function SummaryStat({
   )
 }
 
-function SnapshotCard({
-  row,
-  layout,
-}: {
-  row: SnapshotRecord
-  layout: 'row' | 'stack'
-}) {
+function SnapshotCard({ row }: { row: SnapshotRecord }) {
   const hasViolations = row.violationCount > 0
-
-  if (layout === 'stack') {
-    return (
-      <Link to={`/snapshots/${row.id}`} className="group block">
-        <SnapshotThumb
-          src={row.previewUrl}
-          className="aspect-video w-full rounded-lg"
-        />
-        <div className="mt-2 min-w-0 px-0.5">
-          <p className="truncate text-sm font-bold text-ink group-hover:text-navy">
-            {row.snapshotId}
-          </p>
-          <p className="mt-0.5 truncate text-xs text-muted">
-            {row.date} · {row.time}
-          </p>
-          <StatusChip hasViolations={hasViolations} count={row.violationCount} />
-        </div>
-      </Link>
-    )
-  }
 
   return (
     <Link
       to={`/snapshots/${row.id}`}
-      className="group flex gap-2 @[16rem]/snapshots:gap-3"
+      className="group flex w-full min-w-0 gap-2 @[16rem]/snapshots:gap-3"
     >
       <SnapshotThumb
         src={row.previewUrl}

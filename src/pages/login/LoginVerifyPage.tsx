@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Loader2, QrCode, RefreshCw, Smartphone } from 'lucide-react'
 import { GearSightLogo } from '@/components/brand/GearSightLogo'
-import { useAuth } from '@/context/AuthContext'
+import { SKIP_SITE_VERIFICATION, useAuth } from '@/context/AuthContext'
 import {
   fetchVerifyHosts,
   pickPhoneOrigin,
@@ -16,6 +16,7 @@ export function LoginVerifyPage() {
     startSiteVerification,
     completeSiteVerification,
     clearPendingLogin,
+    login,
   } = useAuth()
   const navigate = useNavigate()
   const [phoneOrigin, setPhoneOrigin] = useState('')
@@ -24,6 +25,11 @@ export function LoginVerifyPage() {
   const [submitting, setSubmitting] = useState(false)
   const [renewing, setRenewing] = useState(false)
   const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    if (!SKIP_SITE_VERIFICATION || !pendingLogin || isAuthenticated) return
+    login(pendingLogin.email, pendingLogin.role)
+  }, [isAuthenticated, login, pendingLogin])
 
   useEffect(() => {
     let cancelled = false

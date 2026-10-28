@@ -9,11 +9,12 @@ import {
   Mail,
 } from 'lucide-react'
 import { GearSightLogo } from '@/components/brand/GearSightLogo'
-import { useAuth } from '@/context/AuthContext'
+import { SKIP_SITE_VERIFICATION, useAuth } from '@/context/AuthContext'
 import { siteInfo } from '@/data/mock'
 
 export function LoginPage() {
-  const { isAuthenticated, pendingLogin, startSiteVerification } = useAuth()
+  const { isAuthenticated, pendingLogin, startSiteVerification, login } =
+    useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('account@gmail.com')
   const [projectId, setProjectId] = useState(siteInfo.projectId)
@@ -26,7 +27,7 @@ export function LoginPage() {
     return <Navigate to="/" replace />
   }
 
-  if (pendingLogin) {
+  if (pendingLogin && !SKIP_SITE_VERIFICATION) {
     return <Navigate to="/login/verify" replace />
   }
 
@@ -38,6 +39,11 @@ export function LoginPage() {
       // Feasibility prototype: any non-empty passcode is accepted.
       if (!passcode.trim()) {
         setError('Enter your passcode')
+        return
+      }
+      if (SKIP_SITE_VERIFICATION) {
+        login(email.trim() || 'account@gmail.com', 'safety_officer')
+        navigate('/')
         return
       }
       await startSiteVerification(
@@ -97,11 +103,12 @@ export function LoginPage() {
               Sign in
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-[#6b7280] sm:text-base">
-              After credentials, you will verify on-site with your phone GPS
-              before opening the workspace.
+              {SKIP_SITE_VERIFICATION
+                ? 'Enter your credentials to open the workspace.'
+                : 'After credentials, you will verify on-site with your phone GPS before opening the workspace.'}
             </p>
 
-            {onHttp ? (
+            {onHttp && !SKIP_SITE_VERIFICATION ? (
               <div className="mt-4 rounded-xl border border-[#fcd34d] bg-[#fffbeb] px-3.5 py-3 text-sm text-[#92400e]">
                 You are on <strong>http://</strong>. Site verify needs{' '}
                 <strong>https://localhost:5173</strong> — change the address
@@ -197,7 +204,7 @@ export function LoginPage() {
               {submitting ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                'Continue to site check'
+                SKIP_SITE_VERIFICATION ? 'Sign in' : 'Continue to site check'
               )}
             </button>
           </div>

@@ -13,6 +13,13 @@ dist-ssr
 release
 *.local
 
+# PPE RT-DETR detect service
+detect/.venv/
+detect/**/__pycache__/
+detect/models/*.pt
+*.pt
+*.pth
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

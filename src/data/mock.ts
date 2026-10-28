@@ -87,15 +87,6 @@ export const siteWorkers: Worker[] = [
   },
 ]
 
-export const complianceBenchmark = {
-  highCompliance: 85,
-  modelAccuracy: 85,
-  ppeDetection: 84,
-  compliant: 20,
-  nonCompliant: 12,
-  needsChecking: 20,
-}
-
 const previewUrl =
   'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=70'
 

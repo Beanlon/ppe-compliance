@@ -21,7 +21,7 @@ export function DetectionSidebar({
     detail.people.find((p) => p.id === selectedPersonId) ?? detail.people[0]
 
   return (
-    <section className="flex w-full flex-col bg-white">
+    <section className="flex h-full w-full flex-col bg-white">
       <div className="border-b border-gray-200 px-2.5 py-2 @[16rem]/detections:px-3 @[16rem]/detections:py-2.5">
         <h2 className="truncate text-sm font-bold text-ink sm:text-base">
           Detections

@@ -3,15 +3,28 @@ import { useAuth } from '@/context/AuthContext'
 import { useSite } from '@/context/SiteContext'
 import { AppPageFrame } from '@/components/layout/AppPageFrame'
 import { CreateToolboxOverlay } from '@/components/toolbox/CreateToolboxOverlay'
-import { LiveFeedCard } from './components/LiveFeedCard'
+import {
+  LiveFeedCard,
+  type LiveDetectionSnapshot,
+} from './components/LiveFeedCard'
 import { ComplianceBenchmarkCard } from './components/ComplianceBenchmarkCard'
 import { TodaysSummaryCard } from './components/TodaysSummaryCard'
 import { RecentSnapshotsCard } from './components/RecentSnapshotsCard'
+
+const EMPTY_LIVE: LiveDetectionSnapshot = {
+  detections: [],
+  people: [],
+  status: 'idle',
+  error: '',
+  modelName: 'RT-DETR-L',
+  device: '',
+}
 
 export function LiveFeedPage() {
   const { justLoggedIn, consumeJustLoggedIn } = useAuth()
   const { hasToolbox } = useSite()
   const [overlayOpen, setOverlayOpen] = useState(false)
+  const [live, setLive] = useState<LiveDetectionSnapshot>(EMPTY_LIVE)
 
   // Show the create-toolbox overlay only right after login, and only when
   // there is no active work session. Ending a session does not re-open it.
@@ -22,14 +35,25 @@ export function LiveFeedPage() {
     consumeJustLoggedIn()
   }, [justLoggedIn, hasToolbox, consumeJustLoggedIn])
 
+  useEffect(() => {
+    if (!hasToolbox) setLive(EMPTY_LIVE)
+  }, [hasToolbox])
+
   return (
     <AppPageFrame>
-      <div className="flex flex-1 flex-col lg:flex-row">
-        <div className="min-w-0 flex-1">
-          <LiveFeedCard active={hasToolbox} />
+      <div className="flex min-h-full w-full flex-1 flex-col lg:landscape:flex-row">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <LiveFeedCard active={hasToolbox} onLiveDetection={setLive} />
           {hasToolbox ? (
             <>
-              <ComplianceBenchmarkCard />
+              <ComplianceBenchmarkCard
+                detections={live.detections}
+                people={live.people}
+                status={live.status}
+                error={live.error}
+                modelName={live.modelName}
+                device={live.device}
+              />
               <TodaysSummaryCard />
             </>
           ) : (
@@ -54,7 +78,7 @@ export function LiveFeedPage() {
           )}
         </div>
 
-        <aside className="@container/snapshots w-full shrink-0 border-t border-gray-200 lg:w-[clamp(11.5rem,28vw,18rem)] lg:max-w-[40%] lg:border-l lg:border-t-0 xl:w-[300px] xl:max-w-none 2xl:w-[360px]">
+        <aside className="@container/snapshots w-full min-w-0 shrink-0 border-t border-gray-200 lg:landscape:w-[clamp(11.5rem,28vw,18rem)] lg:landscape:max-w-[40%] lg:landscape:border-l lg:landscape:border-t-0 xl:landscape:w-[300px] xl:landscape:max-w-none 2xl:landscape:w-[360px]">
           {hasToolbox ? (
             <RecentSnapshotsCard />
           ) : (

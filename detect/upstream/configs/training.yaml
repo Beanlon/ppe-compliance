@@ -1,0 +1,59 @@
+# Hyperparameters used by notebooks/ppe_yolov8_vs_rfdetr.ipynb.
+# The notebook builds a 90/10 split and trains both models from these values.
+
+dataset_dir: data/processed/PPE-Normalized-v2
+# YOLOv8 trains on the reduced folder splits in data.yaml.
+# Person-only images were cut by 4,823 and safety_suit was removed.
+data_yaml: data/processed/PPE-Normalized-v2/data.yaml
+seed: 42
+
+classes:
+  - person
+  - helmet
+  - gloves
+  - high_visibility
+  - boots
+  - safety_glasses
+  - harness
+
+yolov8:
+  # yolov8n | yolov8s | yolov8m | yolov8l | yolov8x
+  # Defaults fit a 2GB GeForce MX130. On a larger GPU:
+  #   python scripts/train/train_yolov8.py --model yolov8m.pt --imgsz 960 --batch 8
+  model: yolov8s.pt
+  epochs: 40
+  imgsz: 640
+  batch: 16
+  patience: 10
+  workers: 2
+  amp: false
+  plots: true
+  # MX130 (Pascal) cannot run MuSGD, which Ultralytics auto-selects on this
+  # dataset and which multiplies bfloat16 matrices. SGD stays in float32.
+  optimizer: SGD
+  cls: 1.5
+  box: 7.5
+  mosaic: 1.0
+  mixup: 0.1
+  scale: 0.5
+  translate: 0.1
+  fliplr: 0.5
+  project: artifacts/yolov8
+  run_name: ppe_yolov8s
+  export_best: artifacts/weights/yolov8/best.pt
+
+rfdetr:
+  # nano | small | medium | large
+  model: small
+  epochs: 40
+  batch_size: 16
+  lr: 1.0e-4
+  resolution: 640
+  early_stopping: true
+  early_stopping_patience: 10
+  output_dir: artifacts/rfdetr/ppe_rfdetr_small
+
+comparison:
+  report_json: reports/model_comparison.json
+  report_md: reports/model_comparison.md
+  latency_images: 100
