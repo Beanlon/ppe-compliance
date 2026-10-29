@@ -164,9 +164,14 @@ export function PhoneVerifyPage() {
     if (!challenge || !phonePos) return
     setLocating(true)
     setLocateError('')
+    setCode(null)
     try {
       const result = await submitPhoneLocation(challenge.id, phonePos)
       setChallenge(result)
+      if (!result.phoneLocation?.insideGeofence) {
+        setCode(null)
+        return
+      }
       setCode(result.code)
     } catch (err) {
       setLocateError(err instanceof Error ? err.message : 'Submit failed')
@@ -339,15 +344,24 @@ export function PhoneVerifyPage() {
         </p>
         {distanceLabel ? (
           <p
-            className={`font-semibold ${inside ? 'text-[#166534]' : 'text-[#b45309]'}`}
+            className={`font-semibold ${inside ? 'text-[#166534]' : 'text-[#b91c1c]'}`}
           >
             {distanceLabel}
-            {inside
-              ? ' · inside geofence'
-              : ' · outside geofence (code still issued for feasibility test)'}
+            {inside ? ' · inside geofence' : ' · outside geofence'}
           </p>
         ) : null}
       </div>
+
+      {inside === false ? (
+        <div className="mt-4 rounded-2xl border border-[#fecaca] bg-[#fef2f2] p-4 text-sm text-[#991b1b]">
+          <p className="font-semibold">You are nowhere near the project area</p>
+          <p className="mt-1 leading-relaxed">
+            A verification code will only appear when your phone GPS is inside
+            the orange circle ({challenge.geofenceMeters} m). Move closer, then
+            refresh GPS and try again.
+          </p>
+        </div>
+      ) : null}
 
       {locateError ? (
         <p className="mt-3 text-sm font-medium text-[#b45309]">{locateError}</p>

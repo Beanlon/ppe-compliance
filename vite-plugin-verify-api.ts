@@ -229,8 +229,15 @@ export function verifyApiPlugin(): Plugin {
               distanceM: Math.round(distanceM),
               insideGeofence,
             }
-            // Feasibility: issue a code whenever the phone got a real GPS fix.
-            // Geofence pass/fail is reported so you can compare accuracy.
+            // Only issue a login code when the phone is inside the site radius.
+            if (!insideGeofence) {
+              challenge.code = null
+              sendJson(res, 200, {
+                ...publicChallenge(challenge),
+                code: null,
+              })
+              return
+            }
             if (!challenge.code) challenge.code = makeCode()
             sendJson(res, 200, {
               ...publicChallenge(challenge),
@@ -243,6 +250,12 @@ export function verifyApiPlugin(): Plugin {
             const raw = await readBody(req)
             const body = JSON.parse(raw || '{}') as { code?: string }
             const code = body.code?.trim() ?? ''
+            if (!challenge.phoneLocation?.insideGeofence) {
+              sendJson(res, 403, {
+                error: 'Location is outside the project area',
+              })
+              return
+            }
             if (!challenge.code || code !== challenge.code) {
               sendJson(res, 401, { error: 'Invalid verification code' })
               return

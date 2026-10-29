@@ -66,7 +66,7 @@ export async function getChallenge(id: string): Promise<PublicChallenge> {
 export async function submitPhoneLocation(
   id: string,
   input: { lat: number; lng: number; accuracy: number },
-): Promise<PublicChallenge & { code: string }> {
+): Promise<PublicChallenge & { code: string | null }> {
   const res = await fetch(
     `/api/verify/challenges/${encodeURIComponent(id)}/location`,
     {
