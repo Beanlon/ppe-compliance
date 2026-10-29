@@ -90,6 +90,19 @@ src/
 | Records (list / grid) | `/records` |
 | About us | `/about` |
 
-## Note on YOLOv8
+## Supabase backend
 
-Electron currently wraps the **same frontend UI**. Live PPE detection (Python + YOLOv8 + OpenCV) can be added later as a local sidecar; the UI does not need a full redesign for that.
+Cloud auth, projects, toolbox sessions, snapshots, and reports use Supabase.
+
+1. Create a Supabase project.
+2. Run [`supabase/migrations/202603290001_init.sql`](supabase/migrations/202603290001_init.sql) in the SQL Editor.
+3. Copy `.env.example` → `.env.local` and set `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`.
+4. Restart `npm run dev`.
+
+Details: [`supabase/README.md`](supabase/README.md).
+
+Local RT-DETR (`npm run detect`) and phone GPS verify stay on this machine.
+
+## Note on detection
+
+Electron wraps the **same frontend UI**. Live PPE detection runs via the local Python RT-DETR service (`npm run detect`).

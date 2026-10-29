@@ -1,12 +1,15 @@
+/** @deprecated Role removed from profiles; kept optional for older login verify flow. */
 export type UserRole = 'safety_officer' | 'site_engineer'
 
 export type ComplianceStatus = 'compliant' | 'non_compliant' | 'needs_checking'
 
 export interface User {
   id: string
+  firstName: string
+  lastName: string
+  /** Display name: first + last */
   name: string
   email: string
-  role: UserRole
 }
 
 export interface SnapshotRecord {

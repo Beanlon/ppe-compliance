@@ -11,6 +11,8 @@ const JPEG_QUALITY = 0.85
 const MAX_SIDE = 960
 
 export type MeasuredFrame = {
+  /** Keep the Blob for capture — object URLs are revoked on every new frame. */
+  blob: Blob
   url: string
   width: number
   height: number
@@ -137,7 +139,12 @@ export function useLiveDetection({ enabled, videoRef, requiredPpe }: Options) {
           URL.revokeObjectURL(shot.url)
           return
         }
-        showFrame({ url: shot.url, width: shot.width, height: shot.height })
+        showFrame({
+          blob: shot.blob,
+          url: shot.url,
+          width: shot.width,
+          height: shot.height,
+        })
         setPeople(result.people)
         setDetections(result.detections ?? [])
         setDevice(result.device)

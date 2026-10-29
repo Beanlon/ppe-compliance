@@ -117,7 +117,7 @@ export function ToolboxPage() {
     )
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (
       !dateOfApplication.trim() ||
@@ -130,18 +130,24 @@ export function ToolboxPage() {
       return
     }
 
-    createToolbox({
-      dateOfApplication,
-      timeOfApplication,
-      permitReceiver,
-      contractorCompanyName,
-      siteAddressName,
-      workers: filledWorkers,
-      workType,
-      requiredPpe,
-      camera,
-    })
-    navigate('/')
+    try {
+      await createToolbox({
+        dateOfApplication,
+        timeOfApplication,
+        permitReceiver,
+        contractorCompanyName,
+        siteAddressName,
+        workers: filledWorkers,
+        workType,
+        requiredPpe,
+        camera,
+      })
+      navigate('/')
+    } catch (err) {
+      window.alert(
+        err instanceof Error ? err.message : 'Could not create toolbox session',
+      )
+    }
   }
 
   if (hasToolbox && toolbox) {
@@ -250,8 +256,7 @@ export function ToolboxPage() {
             <button
               type="button"
               onClick={() => {
-                clearToolbox()
-                navigate('/')
+                void clearToolbox().then(() => navigate('/'))
               }}
               className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-[#dc2626] px-5 text-sm font-semibold text-white transition hover:bg-[#b91c1c]"
             >

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
-import { Check, ChevronDown, VideoOff } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Camera, Check, ChevronDown, Loader2, VideoOff } from 'lucide-react'
 import { DetectionOverlay } from '@/components/detection/DetectionOverlay'
 import { useSite } from '@/context/SiteContext'
 import { useCameraDevices } from '@/hooks/useCameraDevices'
@@ -50,8 +51,11 @@ function CameraFeed({
 }: {
   onLiveDetection?: (snapshot: LiveDetectionSnapshot) => void
 }) {
-  const { toolbox, setToolboxCamera } = useSite()
+  const { toolbox, setToolboxCamera, captureSnapshot } = useSite()
+  const navigate = useNavigate()
   const saved = toolbox?.camera ?? null
+  const [capturing, setCapturing] = useState(false)
+  const [captureError, setCaptureError] = useState('')
   const {
     cameras,
     status: devicesStatus,
@@ -112,7 +116,7 @@ function CameraFeed({
   // Same camera, new device ID (e.g. browser storage was reset)
   useEffect(() => {
     if (selected && saved && selected.deviceId !== saved.deviceId) {
-      setToolboxCamera(selected)
+      void setToolboxCamera(selected)
     }
   }, [selected, saved, setToolboxCamera])
 
@@ -124,8 +128,26 @@ function CameraFeed({
   function chooseCamera(camera: CameraSource) {
     // Re-picking the current camera is the natural way to reconnect it
     if (camera.deviceId === selected?.deviceId && !live) retry()
-    setToolboxCamera(camera)
+    void setToolboxCamera(camera)
     setMenuOpen(false)
+  }
+
+  /** TEMP: sample capture for testing. Remove when auto-capture ships. */
+  async function handleTempCapture() {
+    if (!frame?.blob || capturing) return
+    setCapturing(true)
+    setCaptureError('')
+    try {
+      // Use the Blob directly — frame.url may already be revoked by the next detect tick.
+      const detail = await captureSnapshot({ image: frame.blob, people })
+      navigate(`/snapshots/${detail.id}`)
+    } catch (err) {
+      setCaptureError(
+        err instanceof Error ? err.message : 'Could not capture snapshot',
+      )
+    } finally {
+      setCapturing(false)
+    }
   }
 
   async function reloadAndReconnect() {
@@ -220,6 +242,30 @@ function CameraFeed({
         <div className="absolute left-3 top-3 inline-flex items-center gap-2 rounded-lg bg-black/55 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wide text-white sm:left-4 sm:top-4 sm:px-3 sm:text-sm">
           <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
           Live
+        </div>
+      )}
+
+      {/* TEMP test control — remove when automatic capture replaces this */}
+      {live && frame && (
+        <div className="absolute bottom-3 right-3 z-10 flex max-w-[55%] flex-col items-end gap-1.5 sm:bottom-4 sm:right-4">
+          {captureError ? (
+            <p className="rounded-md bg-[#7f1d1d]/90 px-2 py-1 text-[10px] font-medium text-white sm:text-xs">
+              {captureError}
+            </p>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => void handleTempCapture()}
+            disabled={capturing || detectStatus === 'checking'}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-accent px-3 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-lg transition hover:bg-[#e85f10] disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm"
+          >
+            {capturing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Camera className="h-4 w-4" strokeWidth={2.25} />
+            )}
+            {capturing ? 'Saving…' : 'Capture (temp)'}
+          </button>
         </div>
       )}
 

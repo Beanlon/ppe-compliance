@@ -15,6 +15,7 @@
     "electron:preview": "npm run build && electron ."
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.41.0",
     "react": "^19.2.8",

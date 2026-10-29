@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import {
   Eye,
   EyeOff,
@@ -12,16 +12,32 @@ import { GearSightLogo } from '@/components/brand/GearSightLogo'
 import { SKIP_SITE_VERIFICATION, useAuth } from '@/context/AuthContext'
 import { siteInfo } from '@/data/mock'
 
+type LoginLocationState = {
+  justSignedUp?: boolean
+  email?: string
+  projectId?: string
+}
+
 export function LoginPage() {
-  const { isAuthenticated, pendingLogin, startSiteVerification, login } =
-    useAuth()
+  const { isAuthenticated, pendingLogin, startSiteVerification } = useAuth()
   const navigate = useNavigate()
-  const [email, setEmail] = useState('account@gmail.com')
-  const [projectId, setProjectId] = useState(siteInfo.projectId)
+  const location = useLocation()
+  const signupState = (location.state as LoginLocationState | null) ?? null
+  const [email, setEmail] = useState(
+    signupState?.email?.trim() || 'account@gmail.com',
+  )
+  const [projectId, setProjectId] = useState(
+    signupState?.projectId?.trim() || siteInfo.projectId,
+  )
   const [passcode, setPasscode] = useState('')
   const [showPasscode, setShowPasscode] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [notice] = useState(
+    signupState?.justSignedUp
+      ? 'Account created. Sign in with your email, password, and Project ID.'
+      : '',
+  )
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />
@@ -36,19 +52,22 @@ export function LoginPage() {
     setSubmitting(true)
     setError('')
     try {
-      // Feasibility prototype: any non-empty passcode is accepted.
       if (!passcode.trim()) {
-        setError('Enter your passcode')
+        setError('Enter your password')
         return
       }
       if (SKIP_SITE_VERIFICATION) {
-        login(email.trim() || 'account@gmail.com', 'safety_officer')
+        await startSiteVerification(
+          email.trim(),
+          passcode,
+          projectId.trim() || siteInfo.projectId,
+        )
         navigate('/')
         return
       }
       await startSiteVerification(
-        email,
-        'safety_officer',
+        email.trim(),
+        passcode,
         projectId.trim() || siteInfo.projectId,
       )
       navigate('/login/verify')
@@ -56,12 +75,12 @@ export function LoginPage() {
       const message = err instanceof Error ? err.message : ''
       if (/failed to fetch|networkerror|load failed/i.test(message)) {
         setError(
-          'Could not reach the verify server. Open the app at https://localhost:5173 (not http), accept the certificate warning, then try again.',
+          'Could not reach the server. Check Supabase keys and that the app is at https://localhost:5173.',
         )
       } else {
         setError(
           message ||
-            'Could not start site verification. Is the Vite server running?',
+            'Could not sign in. Check email, password, and Project ID.',
         )
       }
     } finally {
@@ -107,6 +126,12 @@ export function LoginPage() {
                 ? 'Enter your credentials to open the workspace.'
                 : 'After credentials, you will verify on-site with your phone GPS before opening the workspace.'}
             </p>
+
+            {notice ? (
+              <div className="mt-4 rounded-xl border border-[#bbf7d0] bg-[#f0fdf4] px-3.5 py-3 text-sm text-[#166534]">
+                {notice}
+              </div>
+            ) : null}
 
             {onHttp && !SKIP_SITE_VERIFICATION ? (
               <div className="mt-4 rounded-xl border border-[#fcd34d] bg-[#fffbeb] px-3.5 py-3 text-sm text-[#92400e]">
@@ -155,13 +180,13 @@ export function LoginPage() {
               <div>
                 <span className="mb-1.5 flex items-center justify-between gap-3">
                   <label htmlFor="passcode" className="text-sm font-semibold text-ink">
-                    Passcode
+                    Password
                   </label>
                   <button
                     type="button"
                     className="text-sm font-medium text-accent transition hover:underline"
                   >
-                    Forgot passcode?
+                    Forgot password?
                   </button>
                 </span>
                 <span className="relative block">
@@ -173,14 +198,14 @@ export function LoginPage() {
                     autoComplete="current-password"
                     value={passcode}
                     onChange={(e) => setPasscode(e.target.value)}
-                    placeholder="Enter your passcode"
+                    placeholder="Enter your password"
                     className={`${fieldClass} pl-11 pr-11`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPasscode((v) => !v)}
                     className="absolute right-0 top-0 flex h-12 w-11 items-center justify-center text-[#6b7280] transition hover:text-navy"
-                    aria-label={showPasscode ? 'Hide passcode' : 'Show passcode'}
+                    aria-label={showPasscode ? 'Hide password' : 'Show password'}
                   >
                     {showPasscode ? (
                       <EyeOff className="h-4 w-4" />

@@ -119,8 +119,7 @@ function SidebarNav({ onShowTutorial }: { onShowTutorial: () => void }) {
       <button
         type="button"
         onClick={() => {
-          logout()
-          navigate('/login')
+          void logout().then(() => navigate('/login'))
         }}
         className="mt-4 flex items-center gap-2 px-[clamp(0.75rem,1.2vw,1.25rem)] py-1 text-xs font-medium text-white/75 transition hover:text-white sm:mt-6 sm:pb-6 sm:text-sm"
       >

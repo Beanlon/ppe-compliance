@@ -3,8 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Camera } from 'lucide-react'
 import { AppPageFrame } from '@/components/layout/AppPageFrame'
 import { useSite } from '@/context/SiteContext'
-import { getSnapshotDetail } from '@/data/mock'
-import type { PersonDetection } from '@/types'
+import { isSupabaseConfigured } from '@/lib/supabaseClient'
+import { fetchSnapshotDetail } from '@/lib/supabaseApi'
+import type { PersonDetection, SnapshotDetail } from '@/types'
 import { DetectionSidebar } from './components/DetectionSidebar'
 import { RecentSnapshotsStrip } from './components/RecentSnapshotsStrip'
 import { SnapshotAnnotatedImage } from './components/SnapshotAnnotatedImage'
@@ -13,8 +14,42 @@ export function SnapshotPage() {
   const { snapshotId = '' } = useParams()
   const navigate = useNavigate()
   const { reportDetection, reports } = useSite()
-  const detail = useMemo(() => getSnapshotDetail(snapshotId), [snapshotId])
+  const [detail, setDetail] = useState<SnapshotDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setLoadError('')
+    setDetail(null)
+
+    void (async () => {
+      try {
+        if (!isSupabaseConfigured) {
+          throw new Error(
+            'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+          )
+        }
+        const next = await fetchSnapshotDetail(snapshotId)
+        if (cancelled) return
+        setDetail(next)
+        if (!next) setLoadError('Snapshot not found')
+      } catch (err) {
+        if (cancelled) return
+        setLoadError(
+          err instanceof Error ? err.message : 'Could not load snapshot',
+        )
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [snapshotId])
 
   const reportedPersonIds = useMemo(() => {
     if (!detail) return new Set<string>()
@@ -32,11 +67,25 @@ export function SnapshotPage() {
   function handleReportPerson(person: PersonDetection) {
     if (!detail || person.status === 'compliant') return
     if (reportedPersonIds.has(person.id)) return
-    reportDetection({
+    void reportDetection({
       snapshotId: detail.id,
       personLabel: person.label,
       personDetectionId: person.id,
     })
+  }
+
+  if (loading) {
+    return (
+      <AppPageFrame>
+        <div className="flex flex-1 items-center justify-center px-4 py-16">
+          <div
+            className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent"
+            role="status"
+            aria-label="Loading snapshot"
+          />
+        </div>
+      </AppPageFrame>
+    )
   }
 
   if (!detail) {
@@ -54,7 +103,7 @@ export function SnapshotPage() {
         <div className="px-3 py-5">
           <h1 className="text-xl font-bold text-ink">Snapshot not found</h1>
           <p className="mt-1 text-sm text-muted">
-            It may have been removed from records.
+            {loadError || 'It may have been removed from records.'}
           </p>
         </div>
       </AppPageFrame>

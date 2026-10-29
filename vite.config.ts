@@ -16,7 +16,7 @@ function lanIpv4s(): string[] {
   const ips: string[] = []
   for (const entries of Object.values(os.networkInterfaces())) {
     for (const entry of entries ?? []) {
-      const isV4 = entry.family === 'IPv4' || entry.family === 4
+      const isV4 = entry.family === 'IPv4' || entry.family === (4 as unknown as string)
       if (isV4 && !entry.internal) ips.push(entry.address)
     }
   }

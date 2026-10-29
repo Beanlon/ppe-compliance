@@ -43,16 +43,19 @@ function makeProjectId() {
 }
 
 export function SignUpPage() {
-  const { isAuthenticated, login } = useAuth()
+  const { isAuthenticated, signUp } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   const [mapPosition, setMapPosition] = useState<LatLng>(DEFAULT_CENTER)
   const [address, setAddress] = useState(
     'A.M. Mata Compound Maligaya Avenue, Matina Davao City',
   )
 
-  const [name, setName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [projectName, setProjectName] = useState('')
   const [projectId, setProjectId] = useState(makeProjectId)
@@ -65,10 +68,35 @@ export function SignUpPage() {
     return <Navigate to="/" replace />
   }
 
-  function go(dir: -1 | 1) {
+  async function go(dir: -1 | 1) {
     if (dir === 1 && step === STEPS.length) {
-      login(email || 'account@gmail.com', 'safety_officer')
-      navigate('/')
+      setSubmitting(true)
+      setError('')
+      try {
+        await signUp({
+          firstName,
+          lastName,
+          email,
+          password,
+          projectName,
+          projectCode: projectId,
+          address,
+          lat: mapPosition.lat,
+          lng: mapPosition.lng,
+        })
+        navigate('/login', {
+          replace: true,
+          state: {
+            justSignedUp: true,
+            email: email.trim(),
+            projectId,
+          },
+        })
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Could not create account')
+      } finally {
+        setSubmitting(false)
+      }
       return
     }
     const next = step + dir
@@ -217,13 +245,16 @@ export function SignUpPage() {
             )}
             {step === 2 && (
               <CredentialsStep
-                name={name}
+                firstName={firstName}
+                lastName={lastName}
                 email={email}
                 projectName={projectName}
                 projectId={projectId}
                 password={password}
                 showPassword={showPassword}
-                onName={setName}
+                error={error}
+                onFirstName={setFirstName}
+                onLastName={setLastName}
                 onEmail={setEmail}
                 onProjectName={setProjectName}
                 onRegenId={() => setProjectId(makeProjectId())}
@@ -237,8 +268,8 @@ export function SignUpPage() {
         <footer className="flex items-center justify-between gap-3 border-t border-[#e5e7eb] bg-white px-5 py-4 sm:px-8">
           <button
             type="button"
-            onClick={() => go(-1)}
-            disabled={step === 1}
+            onClick={() => void go(-1)}
+            disabled={step === 1 || submitting}
             className="inline-flex h-11 items-center gap-1 rounded-full border border-[#d8dce3] px-4 text-sm font-semibold text-ink transition hover:border-navy disabled:cursor-not-allowed disabled:opacity-35 sm:text-base"
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
@@ -254,10 +285,15 @@ export function SignUpPage() {
             </Link>
             <button
               type="button"
-              onClick={() => go(1)}
-              className="inline-flex h-11 items-center gap-1 rounded-full bg-navy px-6 text-sm font-semibold text-white transition hover:bg-[#24314d] sm:text-base"
+              onClick={() => void go(1)}
+              disabled={submitting}
+              className="inline-flex h-11 items-center gap-1 rounded-full bg-navy px-6 text-sm font-semibold text-white transition hover:bg-[#24314d] disabled:opacity-60 sm:text-base"
             >
-              {step === STEPS.length ? 'Finish setup' : 'Continue'}
+              {submitting
+                ? 'Creating…'
+                : step === STEPS.length
+                  ? 'Finish setup'
+                  : 'Continue'}
               <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
             </button>
           </div>
@@ -290,26 +326,32 @@ function SiteInformationStep({
 }
 
 function CredentialsStep({
-  name,
+  firstName,
+  lastName,
   email,
   projectName,
   projectId,
   password,
   showPassword,
-  onName,
+  error,
+  onFirstName,
+  onLastName,
   onEmail,
   onProjectName,
   onRegenId,
   onPassword,
   onTogglePassword,
 }: {
-  name: string
+  firstName: string
+  lastName: string
   email: string
   projectName: string
   projectId: string
   password: string
   showPassword: boolean
-  onName: (v: string) => void
+  error: string
+  onFirstName: (v: string) => void
+  onLastName: (v: string) => void
   onEmail: (v: string) => void
   onProjectName: (v: string) => void
   onRegenId: () => void
@@ -318,16 +360,35 @@ function CredentialsStep({
 }) {
   return (
     <div className="mx-auto w-full max-w-xl rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm sm:p-8">
+      {error ? (
+        <p className="mb-4 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm text-[#9f1239]">
+          {error}
+        </p>
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Name">
+        <Field label="First name">
           <input
             type="text"
-            value={name}
-            onChange={(e) => onName(e.target.value)}
-            placeholder="Full name"
+            value={firstName}
+            onChange={(e) => onFirstName(e.target.value)}
+            placeholder="First name"
             className={inputClass}
+            autoComplete="given-name"
           />
         </Field>
+        <Field label="Last name">
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => onLastName(e.target.value)}
+            placeholder="Last name"
+            className={inputClass}
+            autoComplete="family-name"
+          />
+        </Field>
+      </div>
+
+      <div className="mt-4">
         <Field label="Email">
           <input
             type="email"
@@ -335,6 +396,7 @@ function CredentialsStep({
             onChange={(e) => onEmail(e.target.value)}
             placeholder="you@company.com"
             className={inputClass}
+            autoComplete="email"
           />
         </Field>
       </div>

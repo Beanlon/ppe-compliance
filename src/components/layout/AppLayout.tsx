@@ -8,7 +8,7 @@ import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay'
 import { useAuth } from '@/context/AuthContext'
 
 export function AppLayout() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, authReady } = useAuth()
   const { pathname } = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [tutorialOpen, setTutorialOpen] = useState(false)
@@ -20,6 +20,18 @@ export function AppLayout() {
   const closeTutorial = useCallback(() => setTutorialOpen(false), [])
 
   const isAbout = pathname.startsWith('/about')
+
+  if (!authReady) {
+    return (
+      <div className="flex h-full min-h-0 items-center justify-center bg-surface">
+        <div
+          className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent"
+          role="status"
+          aria-label="Loading"
+        />
+      </div>
+    )
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />

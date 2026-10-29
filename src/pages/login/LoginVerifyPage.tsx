@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Loader2, QrCode, RefreshCw, Smartphone } from 'lucide-react'
 import { GearSightLogo } from '@/components/brand/GearSightLogo'
-import { SKIP_SITE_VERIFICATION, useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/context/AuthContext'
 import {
   fetchVerifyHosts,
   pickPhoneOrigin,
@@ -13,23 +13,15 @@ export function LoginVerifyPage() {
   const {
     isAuthenticated,
     pendingLogin,
-    startSiteVerification,
     completeSiteVerification,
     clearPendingLogin,
-    login,
   } = useAuth()
   const navigate = useNavigate()
   const [phoneOrigin, setPhoneOrigin] = useState('')
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [renewing, setRenewing] = useState(false)
   const [now, setNow] = useState(Date.now())
-
-  useEffect(() => {
-    if (!SKIP_SITE_VERIFICATION || !pendingLogin || isAuthenticated) return
-    login(pendingLogin.email, pendingLogin.role)
-  }, [isAuthenticated, login, pendingLogin])
 
   useEffect(() => {
     let cancelled = false
@@ -88,25 +80,6 @@ export function LoginVerifyPage() {
       setError(err instanceof Error ? err.message : 'Verification failed')
     } finally {
       setSubmitting(false)
-    }
-  }
-
-  async function renewQr() {
-    const pending = pendingLogin
-    if (!pending) return
-    setRenewing(true)
-    setError('')
-    setCode('')
-    try {
-      await startSiteVerification(
-        pending.email,
-        pending.role,
-        pending.projectId,
-      )
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not renew QR')
-    } finally {
-      setRenewing(false)
     }
   }
 
@@ -203,19 +176,16 @@ export function LoginVerifyPage() {
                 Proceed. Then tap <span className="font-semibold text-[#6b7280]">Allow location</span> so the GPS popup can appear.
               </p>
 
-              <button
-                type="button"
-                onClick={() => void renewQr()}
-                disabled={renewing}
-                className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#d8dce3] px-4 text-sm font-semibold text-ink transition hover:border-navy disabled:opacity-60"
-              >
-                {renewing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
+              {expired ? (
+                <Link
+                  to="/login"
+                  onClick={() => clearPendingLogin()}
+                  className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#d8dce3] px-4 text-sm font-semibold text-ink transition hover:border-navy"
+                >
                   <RefreshCw className="h-4 w-4" />
-                )}
-                New QR
-              </button>
+                  Sign in again for a new QR
+                </Link>
+              ) : null}
             </div>
 
             <form onSubmit={onConfirm} className="mt-8 space-y-4">

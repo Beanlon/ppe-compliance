@@ -10,9 +10,10 @@ import type {
 
 export const currentUser: User = {
   id: 'u-1',
+  firstName: 'Admin',
+  lastName: '',
   name: 'Admin',
   email: 'account@gmail.com',
-  role: 'safety_officer',
 }
 
 export const siteInfo = {

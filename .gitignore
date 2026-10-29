@@ -12,6 +12,9 @@ dist
 dist-ssr
 release
 *.local
+.env
+.env.local
+.env.*.local
 
 # PPE RT-DETR detect service
 detect/.venv/
